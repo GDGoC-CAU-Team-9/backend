@@ -22,12 +22,13 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/login","/join").permitAll()
+                .requestMatchers("/login", "/join", "/error").permitAll()
                 .anyRequest().authenticated()
             )
                 .formLogin(form -> form
                         .usernameParameter("email")
                         .defaultSuccessUrl("/")
+                        .loginPage("/login")
                         .permitAll()
                 );
         return http.build();

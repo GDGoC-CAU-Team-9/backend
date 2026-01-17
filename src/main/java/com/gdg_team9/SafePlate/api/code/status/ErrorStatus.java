@@ -20,8 +20,8 @@ public enum ErrorStatus implements BaseErrorCode {
     ;
 
     private final HttpStatus httpStatus;
-    private String code;
-    private String message;
+    private final String code;
+    private final String message;
 
     @Override
     public ErrorReasonDTO getReason() {

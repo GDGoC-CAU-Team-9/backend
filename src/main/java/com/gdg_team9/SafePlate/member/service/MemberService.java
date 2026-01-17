@@ -1,7 +1,7 @@
 package com.gdg_team9.SafePlate.member.service;
 
 import com.gdg_team9.SafePlate.api.code.status.ErrorStatus;
-import com.gdg_team9.SafePlate.exception.handler.GeneralHandler;
+import com.gdg_team9.SafePlate.exception.GeneralException;
 import com.gdg_team9.SafePlate.member.domain.Member;
 import com.gdg_team9.SafePlate.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +19,7 @@ public class MemberService {
     public void join(String email, String password, String name){
         // 데이터베이스 예외 발생 이전에 로직에서 차단
         if (memberRepository.existsByEmail(email)) {
-            throw new GeneralHandler(ErrorStatus.DUPLICATE_EMAIL);
+            throw new GeneralException(ErrorStatus.DUPLICATE_EMAIL);
         }
 
         String encodedPassword = bCryptPasswordEncoder.encode(password);

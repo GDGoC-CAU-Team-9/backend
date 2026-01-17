@@ -7,7 +7,7 @@ import com.gdg_team9.SafePlate.api.code.ErrorReasonDTO;
 
 @Getter
 @AllArgsConstructor
-public class GeneralException extends RuntimeException{
+public class GeneralException extends RuntimeException {
 
     private BaseErrorCode code;
 

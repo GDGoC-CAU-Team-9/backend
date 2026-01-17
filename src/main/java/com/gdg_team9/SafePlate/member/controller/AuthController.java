@@ -17,6 +17,6 @@ public class AuthController {
     @PostMapping("/join")
     public ApiResponse<Void> join(@Valid @RequestBody JoinRequest request){
         memberService.join(request.getEmail(), request.getPassword(), request.getName());
-        return ApiResponse.of(SuccessStatus._NO_CONTENT, null);
+        return ApiResponse.of(SuccessStatus._CREATED, null);
     }
 }

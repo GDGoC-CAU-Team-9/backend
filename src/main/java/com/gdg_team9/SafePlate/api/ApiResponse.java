@@ -20,7 +20,7 @@ public class ApiResponse<T> {
     private final String code;
     private final String message;
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private T result;
+    private final T result;
 
     //성공한 경우의 응답
     public static <T> ApiResponse<T> onSuccess(T result) {

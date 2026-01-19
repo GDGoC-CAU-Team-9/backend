@@ -23,13 +23,16 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/login", "/join", "/error").permitAll()
+                .requestMatchers("/error",
+                        "/auth/login",
+                        "/auth/join"
+                        ).permitAll()
                 .anyRequest().authenticated()
             )
                 .formLogin(form -> form
                         .usernameParameter("email")
                         .defaultSuccessUrl("/")
-                        .loginPage("/login")
+                        .loginPage("/auth/login")
                         .permitAll()
                 );
 

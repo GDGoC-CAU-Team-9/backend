@@ -32,6 +32,7 @@ public class SecurityConfig {
                         .loginPage("/login")
                         .permitAll()
                 );
+
         return http.build();
     }
 }

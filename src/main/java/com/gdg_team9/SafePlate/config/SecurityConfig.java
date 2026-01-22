@@ -25,7 +25,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/error",
                         "/auth/login",
-                        "/auth/join"
+                        "/auth/join",
+                        "/allergies"
                         ).permitAll()
                 .anyRequest().authenticated()
             )

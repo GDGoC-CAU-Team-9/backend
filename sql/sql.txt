@@ -1,2 +1,5 @@
 CREATE SCHEMA `safeplate` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
+# get allergy table test data
+USE safeplate;
+insert into allergy (name) values ('우유'), ('땅콩');

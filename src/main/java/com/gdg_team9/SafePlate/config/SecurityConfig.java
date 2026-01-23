@@ -34,6 +34,7 @@ public class SecurityConfig {
                         .usernameParameter("email")
                         .defaultSuccessUrl("/")
                         .loginPage("/auth/login")
+                        .loginProcessingUrl("/auth/login")
                         .permitAll()
                 );
 

@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 // TODO: AI 서버 URL 수정 필요
 @FeignClient(name = "AiClient", url = "http://localhost:8081")
 public interface AiClient {
-    @PostMapping("/ai/vi/search")
+    @PostMapping("/ai/v1/search")
     ResponseEntity<AiClientResponse.SearchResponse> requestSearch
             (@RequestBody AiClientRequest.SearchRequest body);
 }

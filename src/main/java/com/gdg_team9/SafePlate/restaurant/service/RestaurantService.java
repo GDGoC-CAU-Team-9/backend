@@ -10,13 +10,14 @@ import com.gdg_team9.SafePlate.restaurant.dto.AiClientResponse;
 import com.gdg_team9.SafePlate.restaurant.dto.RestaurantRequest;
 import com.gdg_team9.SafePlate.restaurant.openfeign.AiClient;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class RestaurantService {
     private final AiClient aiClient;
     private final MemberRepository memberRepository;
@@ -40,15 +41,11 @@ public class RestaurantService {
                 .dislikeIngredients(userAllergies)
                 .build();
         try {
-            ResponseEntity<AiClientResponse.SearchResponse> aiSearchResponse =
-                    aiClient.requestSearch(aiSearchRequest);
-            if (aiSearchResponse.getStatusCode().is2xxSuccessful()) {
-                return aiSearchResponse.getBody();
-            } else {
-                throw new GeneralException(ErrorStatus.AI_SERVER_FAIL);
-            }
-        } catch (Exception ex) {
+            return aiClient.requestSearch(aiSearchRequest).getBody();
+        } catch (feign.RetryableException e) {
             throw new GeneralException(ErrorStatus.AI_CONNECT_FAIL);
+        } catch (feign.FeignException e) {
+            throw new GeneralException(ErrorStatus.AI_SERVER_FAIL);
         }
     }
 }

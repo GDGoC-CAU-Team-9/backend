@@ -25,7 +25,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/error",
                         "/auth/login",
-                        "/auth/join"
+                        "/auth/join",
+                        "/allergies"
                         ).permitAll()
                 .anyRequest().authenticated()
             )
@@ -33,6 +34,7 @@ public class SecurityConfig {
                         .usernameParameter("email")
                         .defaultSuccessUrl("/")
                         .loginPage("/auth/login")
+                        .loginProcessingUrl("/auth/login")
                         .permitAll()
                 );
 

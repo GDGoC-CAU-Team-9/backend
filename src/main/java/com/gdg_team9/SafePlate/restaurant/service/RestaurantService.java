@@ -1,7 +1,10 @@
 package com.gdg_team9.SafePlate.restaurant.service;
 
+import com.gdg_team9.SafePlate.allergy.repository.UserAllergyRepository;
 import com.gdg_team9.SafePlate.api.code.status.ErrorStatus;
 import com.gdg_team9.SafePlate.exception.GeneralException;
+import com.gdg_team9.SafePlate.member.domain.Member;
+import com.gdg_team9.SafePlate.member.repository.MemberRepository;
 import com.gdg_team9.SafePlate.restaurant.dto.AiClientRequest;
 import com.gdg_team9.SafePlate.restaurant.dto.AiClientResponse;
 import com.gdg_team9.SafePlate.restaurant.dto.RestaurantRequest;
@@ -16,17 +19,25 @@ import java.util.List;
 @RequiredArgsConstructor
 public class RestaurantService {
     private final AiClient aiClient;
+    private final MemberRepository memberRepository;
+    private final UserAllergyRepository userAllergyRepository;
 
     public AiClientResponse.SearchResponse searchRestaurant(
             String userEmail, // 현재 사용자 이메일
             RestaurantRequest.SearchRequest clientSearchRequest
     ) {
-        // TODO: 알러지 정보 가져오기
+        Member member = memberRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new GeneralException(ErrorStatus._UNAUTHORIZED));
+
+        List<String> userAllergies = userAllergyRepository.findByMember(member)
+                .stream().map(userAllergy -> userAllergy.getAllergy().getName())
+                .toList();
+
         AiClientRequest.SearchRequest aiSearchRequest = AiClientRequest.SearchRequest.builder()
                 .keyword(clientSearchRequest.getKeyword())
                 .lat(clientSearchRequest.getLat())
                 .lng(clientSearchRequest.getLng())
-                .dislikeIngredients(List.of())
+                .dislikeIngredients(userAllergies)
                 .build();
         try {
             ResponseEntity<AiClientResponse.SearchResponse> aiSearchResponse =

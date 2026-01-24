@@ -18,12 +18,12 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class AllergyService {
     private final AllergyRepository allergyRepository;
     private final MemberRepository memberRepository;
     private final UserAllergyRepository userAllergyRepository;
 
-    @Transactional(readOnly = true)
     public AllergyResponse.AllergyListResponse getAllergies(){
         List<Allergy> allergies = allergyRepository.findAll();
         List<AllergyResponse.AllergyDTO> allergyDTOs = allergies.stream()
@@ -37,7 +37,6 @@ public class AllergyService {
                 .build();
     }
 
-    @Transactional(readOnly = true)
     public AllergyResponse.AllergyListResponse getMyAllergies(String email){
         Member member = memberRepository.findByEmail(email)
                 .orElseThrow(() -> new GeneralException(ErrorStatus._UNAUTHORIZED));

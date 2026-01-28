@@ -20,8 +20,8 @@ public enum ErrorStatus implements BaseErrorCode {
     AI_SERVER_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "AI5000", "AI 서버에서 문제가 발생했습니다."),
     AI_CONNECT_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "AI5001", "AI 서버와의 연결에 실패했습니다."),
 
-    FILE_NOT_FOUND(HttpStatus.INTERNAL_SERVER_ERROR, "FILE4004", "해당하는 파일이 없습니다."),
-    FILE_NOT_AVAILABLE(HttpStatus.INTERNAL_SERVER_ERROR, "FILE5000", "준비되지 않은 파일입니다."),
+    FILE_NOT_AVAILABLE(HttpStatus.BAD_REQUEST, "FILE4000", "준비되지 않은 파일입니다."),
+    FILE_NOT_FOUND(HttpStatus.NOT_FOUND, "FILE4004", "해당하는 파일이 없습니다."),
     ;
 
     private final HttpStatus httpStatus;

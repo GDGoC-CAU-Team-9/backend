@@ -4,11 +4,11 @@ import com.gdg_team9.SafePlate.allergy.dto.AllergyRequest;
 import com.gdg_team9.SafePlate.allergy.dto.AllergyResponse;
 import com.gdg_team9.SafePlate.allergy.service.AllergyService;
 import com.gdg_team9.SafePlate.api.ApiResponse;
+import com.gdg_team9.SafePlate.member.domain.Member;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.security.Principal;
 
 @RestController
 @RequestMapping("/allergies")
@@ -23,17 +23,20 @@ public class AllergyController {
     }
 
     @GetMapping("/my")
-    public ApiResponse<AllergyResponse.AllergyListResponse> getMyAllergies(Principal principal) {
-        String email = principal.getName();
+    public ApiResponse<AllergyResponse.AllergyListResponse> getMyAllergies(
+            @AuthenticationPrincipal Member member
+    ) {
+        String email = member.getEmail();
         AllergyResponse.AllergyListResponse response = allergyService.getMyAllergies(email);
         return ApiResponse.onSuccess(response);
     }
 
     @PutMapping("/my")
     public ApiResponse<Void> updateMyAllergies(
-            @Valid @RequestBody AllergyRequest.UpdateUserAllergyRequest request,
-            Principal principal) {
-        String email = principal.getName();
+            @AuthenticationPrincipal Member member,
+            @Valid @RequestBody AllergyRequest.UpdateUserAllergyRequest request
+            ) {
+        String email = member.getEmail();
         allergyService.updateMyAllergies(email, request.getAllergyIds());
         return ApiResponse.onSuccess(null);
     }

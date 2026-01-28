@@ -1,6 +1,6 @@
 package com.gdg_team9.SafePlate.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper; // 추가
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,8 +20,7 @@ import java.util.Map;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-
-    private final ObjectMapper objectMapper = new ObjectMapper(); // Jackson 매퍼 생성
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
@@ -43,10 +42,10 @@ public class SecurityConfig {
                             response.setStatus(200);
                             response.setContentType("application/json;charset=UTF-8");
 
-                            // Map을 사용하여 JSON 구조 생성 (오타 방지)
                             Map<String, String> data = new HashMap<>();
                             data.put("message", "Login Success");
 
+                            // 직접 생성한 objectMapper 사용
                             response.getWriter().write(objectMapper.writeValueAsString(data));
                         })
                         .failureHandler((request, response, exception) -> {

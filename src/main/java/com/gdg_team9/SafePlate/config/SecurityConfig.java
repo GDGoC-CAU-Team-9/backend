@@ -1,5 +1,6 @@
 package com.gdg_team9.SafePlate.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper; // 추가
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,12 +12,16 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
+
+    private final ObjectMapper objectMapper = new ObjectMapper(); // Jackson 매퍼 생성
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
@@ -29,21 +34,29 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .anyRequest().permitAll() // 시연용 전면 개방
+                        .anyRequest().permitAll()
                 )
                 .formLogin(form -> form
                         .usernameParameter("email")
                         .loginProcessingUrl("/auth/login")
-                        // 성공 핸들러: 302 리다이렉트 대신 200 상태 코드만 반환
                         .successHandler((request, response, authentication) -> {
                             response.setStatus(200);
-                            response.getWriter().write("{\"message\": \"Login Success\"}"); // 클라이언트에서 확인용
+                            response.setContentType("application/json;charset=UTF-8");
+
+                            // Map을 사용하여 JSON 구조 생성 (오타 방지)
+                            Map<String, String> data = new HashMap<>();
+                            data.put("message", "Login Success");
+
+                            response.getWriter().write(objectMapper.writeValueAsString(data));
                         })
-                        // 실패 핸들러: 302 리다이렉트 대신 401 또는 400 반환
                         .failureHandler((request, response, exception) -> {
                             response.setStatus(401);
                             response.setContentType("application/json;charset=UTF-8");
-                            response.getWriter().write("{\"message\": \"Login Failed\"}");
+
+                            Map<String, String> data = new HashMap<>();
+                            data.put("message", "Login Failed");
+
+                            response.getWriter().write(objectMapper.writeValueAsString(data));
                         })
                         .permitAll()
                 )
@@ -61,7 +74,6 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        // 시연 환경에서 발생할 수 있는 모든 오리진 허용 (보통 배포 IP까지 포함)
         config.setAllowedOriginPatterns(List.of("*"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));

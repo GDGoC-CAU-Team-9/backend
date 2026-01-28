@@ -32,7 +32,7 @@ public class FileController {
         String fileUrl = fileService.patchFileStatus(member, fileId, patchStatusRequest);
         return ApiResponse.onSuccess(
                 FileResponse.FileUrlResponse.builder()
-                        .FileUrl(fileUrl)
+                        .fileUrl(fileUrl)
                         .build()
         );
     }
@@ -45,7 +45,7 @@ public class FileController {
         String fileUrl = fileService.getFileUrlById(member, fileId);
         return ApiResponse.onSuccess(
                 FileResponse.FileUrlResponse.builder()
-                        .FileUrl(fileUrl)
+                        .fileUrl(fileUrl)
                         .build()
         );
     }

@@ -20,6 +20,6 @@ public class FileResponse {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class FileUrlResponse {
-        private String FileUrl;
+        private String fileUrl;
     }
 }

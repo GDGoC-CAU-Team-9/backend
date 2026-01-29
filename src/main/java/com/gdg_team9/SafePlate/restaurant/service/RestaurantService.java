@@ -3,6 +3,7 @@ package com.gdg_team9.SafePlate.restaurant.service;
 import com.gdg_team9.SafePlate.allergy.repository.UserAllergyRepository;
 import com.gdg_team9.SafePlate.api.code.status.ErrorStatus;
 import com.gdg_team9.SafePlate.exception.GeneralException;
+import com.gdg_team9.SafePlate.file.service.FileService;
 import com.gdg_team9.SafePlate.member.domain.Member;
 import com.gdg_team9.SafePlate.member.repository.MemberRepository;
 import com.gdg_team9.SafePlate.restaurant.dto.AiClientRequest;
@@ -23,6 +24,8 @@ public class RestaurantService {
     private final MemberRepository memberRepository;
     private final UserAllergyRepository userAllergyRepository;
 
+    private final FileService fileService;
+
     public AiClientResponse.SearchResponse searchRestaurant(
             String userEmail, // 현재 사용자 이메일
             RestaurantRequest.SearchRequest clientSearchRequest
@@ -34,11 +37,10 @@ public class RestaurantService {
                 .stream().map(userAllergy -> userAllergy.getAllergy().getName())
                 .toList();
 
+        List<String> imageUrls = fileService.getFileUrlsByIds(member, clientSearchRequest.getIds());
         AiClientRequest.SearchRequest aiSearchRequest = AiClientRequest.SearchRequest.builder()
-                .keyword(clientSearchRequest.getKeyword())
-                .lat(clientSearchRequest.getLat())
-                .lng(clientSearchRequest.getLng())
-                .dislikeIngredients(userAllergies)
+                .image_url(imageUrls.get(0))
+                .avoid(userAllergies)
                 .build();
         try {
             return aiClient.requestSearch(aiSearchRequest).getBody();

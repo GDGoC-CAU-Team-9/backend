@@ -12,9 +12,7 @@ public class AiClientRequest {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class SearchRequest {
-        private String keyword;
-        private List<String> dislikeIngredients;
-        private double lat;
-        private double lng;
+        private String image_url;
+        private List<String> avoid;
     }
 }

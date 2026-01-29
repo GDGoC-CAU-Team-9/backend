@@ -11,6 +11,7 @@ public class AiClientResponse {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class SearchResponse {
+        private List<String> items_extracted;
         private List<MenuResult> items;
         private MenuResult best;
 
@@ -19,7 +20,7 @@ public class AiClientResponse {
         @NoArgsConstructor
         @AllArgsConstructor
         public static class MenuResult {
-            private String name;
+            private String menu;
             private int score;
             private int risk;
             private double confidence;

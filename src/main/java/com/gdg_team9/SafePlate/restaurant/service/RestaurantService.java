@@ -39,8 +39,8 @@ public class RestaurantService {
 
         List<String> imageUrls = fileService.getFileUrlsByIds(member, clientSearchRequest.getIds());
         AiClientRequest.SearchRequest aiSearchRequest = AiClientRequest.SearchRequest.builder()
-                .images(imageUrls)
-                .dislikeIngredients(userAllergies)
+                .image_url(imageUrls.get(0))
+                .avoid(userAllergies)
                 .build();
         try {
             return aiClient.requestSearch(aiSearchRequest).getBody();

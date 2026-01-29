@@ -2,6 +2,8 @@ package com.gdg_team9.SafePlate.restaurant.dto;
 
 import lombok.*;
 
+import java.util.List;
+
 public class AiClientResponse {
 
     @Getter
@@ -9,7 +11,8 @@ public class AiClientResponse {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class SearchResponse {
-        private MenuResult[] menus;
+        private List<MenuResult> items;
+        private MenuResult best;
 
         @Getter
         @Setter
@@ -17,8 +20,12 @@ public class AiClientResponse {
         @AllArgsConstructor
         public static class MenuResult {
             private String name;
-            private double score;
-            private String comment;
+            private int score;
+            private int risk;
+            private double confidence;
+            private List<String> matched_avoid;
+            private List<String> suspected_ingredients;
+            private String reason_ko;
         }
     }
 }

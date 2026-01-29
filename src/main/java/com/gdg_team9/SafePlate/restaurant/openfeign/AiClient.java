@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 @FeignClient(name = "AiClient", url = "${ai-server.url}")
 public interface AiClient {
-    @PostMapping("/ai/v1/search")
+    @PostMapping("/rank")
     ResponseEntity<AiClientResponse.SearchResponse> requestSearch
             (@RequestBody AiClientRequest.SearchRequest body);
 }

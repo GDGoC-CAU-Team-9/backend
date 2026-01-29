@@ -9,15 +9,14 @@ public class AiClientResponse {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class SearchResponse {
-        private RestaurantResult[] restaurants;
-        private int count;
+        private MenuResult[] menus;
 
         @Getter
         @Setter
         @NoArgsConstructor
         @AllArgsConstructor
-        public static class RestaurantResult {
-            private String placeId;
+        public static class MenuResult {
+            private String name;
             private double score;
             private String comment;
         }

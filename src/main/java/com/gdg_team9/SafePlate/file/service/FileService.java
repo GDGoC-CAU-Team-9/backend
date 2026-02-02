@@ -1,8 +1,5 @@
 package com.gdg_team9.SafePlate.file.service;
 
-import com.amazonaws.HttpMethod;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import com.gdg_team9.SafePlate.api.code.status.ErrorStatus;
 import com.gdg_team9.SafePlate.exception.GeneralException;
 import com.gdg_team9.SafePlate.file.domain.FileStatus;
@@ -15,10 +12,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
+import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 
 import java.net.URL;
+import java.time.Duration;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -26,10 +28,10 @@ import java.util.UUID;
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class FileService {
-    @Value("${cloud.aws.s3.bucket}")
+    @Value("${spring.cloud.aws.s3.bucket}")
     private String bucket;
 
-    private final AmazonS3 amazonS3;
+    private final S3Presigner s3Presigner;
     private final S3FileRepository s3FileRepository;
 
     public String getFileUrlById(Member member, long id) {
@@ -82,9 +84,16 @@ public class FileService {
                 .build();
         s3FileRepository.save(s3File);
 
-        GeneratePresignedUrlRequest generatePresignedUrlRequest =
-                getGeneratePreSignedUrlRequest(bucket, s3File.getFullFileName());
-        URL url = amazonS3.generatePresignedUrl(generatePresignedUrlRequest);
+        PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                .bucket(bucket)
+                .key(s3File.getFullFileName())
+                .build();
+        PutObjectPresignRequest putObjectPresignRequest = PutObjectPresignRequest.builder()
+                .signatureDuration(Duration.ofMinutes(1))
+                .putObjectRequest(putObjectRequest)
+                .build();
+        URL url = s3Presigner.presignPutObject(putObjectPresignRequest).url();
+
         return FileResponse.PresignedUrlResponse.builder()
                 .fileId(s3File.getId())
                 .presignedUrl(url.toString())
@@ -95,34 +104,18 @@ public class FileService {
         if (!s3File.getStatus().isAvailable()) {
             throw new GeneralException(ErrorStatus.FILE_NOT_AVAILABLE);
         }
-        return amazonS3.getUrl(bucket, s3File.getFullFileName()).toString();
-    }
 
-    /**
-     * 파일 업로드용(PUT) presigned url 생성
-     * @param bucket 버킷 이름
-     * @param fileName S3 업로드용 파일 이름
-     * @return presigned url
-     */
-    private GeneratePresignedUrlRequest getGeneratePreSignedUrlRequest(
-            String bucket,
-            String fileName
-    ) {
-        return new GeneratePresignedUrlRequest(bucket, fileName)
-                .withMethod(HttpMethod.PUT)
-                .withExpiration(getPreSignedUrlExpiration());
-    }
+        GetObjectRequest getObjectRequest = GetObjectRequest.builder()
+                .bucket(bucket)
+                .key(s3File.getFullFileName())
+                .build();
 
-    /**
-     * presigned url 유효 기간 설정
-     * @return 유효기간
-     */
-    private Date getPreSignedUrlExpiration() {
-        Date expiration = new Date();
-        long expTimeMillis = expiration.getTime();
-        expTimeMillis += 1000 * 60;
-        expiration.setTime(expTimeMillis);
-        return expiration;
+        PresignedGetObjectRequest presignRequest = s3Presigner.presignGetObject(r ->
+                r.getObjectRequest(getObjectRequest)
+                        .signatureDuration(Duration.ofMinutes(10))
+        );  // 10분 만료
+
+        return presignRequest.url().toString();
     }
 
     /**

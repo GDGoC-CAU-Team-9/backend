@@ -5,6 +5,7 @@ import com.gdg_team9.SafePlate.file.dto.FileRequest;
 import com.gdg_team9.SafePlate.file.dto.FileResponse;
 import com.gdg_team9.SafePlate.file.service.FileService;
 import com.gdg_team9.SafePlate.member.domain.Member;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +19,7 @@ public class FileController {
     @PostMapping("/presigned-url")
     public ApiResponse<FileResponse.PresignedUrlResponse> presignedUrl(
             @AuthenticationPrincipal Member member,
-            @RequestBody FileRequest.PresignedUrlRequest presignedUrlRequest
+            @Valid @RequestBody FileRequest.PresignedUrlRequest presignedUrlRequest
     ) {
         return ApiResponse.onSuccess(fileService.getPreSignedUrl(member, presignedUrlRequest));
     }
@@ -27,7 +28,7 @@ public class FileController {
     public ApiResponse<FileResponse.FileUrlResponse> patchStatus(
             @AuthenticationPrincipal Member member,
             @PathVariable("fileId") long fileId,
-            @RequestBody FileRequest.PatchStatusRequest patchStatusRequest
+            @Valid @RequestBody FileRequest.PatchStatusRequest patchStatusRequest
     ) {
         String fileUrl = fileService.patchFileStatus(member, fileId, patchStatusRequest);
         return ApiResponse.onSuccess(
@@ -42,7 +43,7 @@ public class FileController {
             @AuthenticationPrincipal Member member,
             @PathVariable("fileId") long fileId
     ) {
-        String fileUrl = fileService.getFileUrlById(member, fileId);
+        String fileUrl = fileService.getFileUrlByMemberAndId(member, fileId);
         return ApiResponse.onSuccess(
                 FileResponse.FileUrlResponse.builder()
                         .fileUrl(fileUrl)

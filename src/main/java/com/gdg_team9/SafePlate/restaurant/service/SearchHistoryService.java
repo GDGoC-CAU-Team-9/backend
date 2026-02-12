@@ -50,6 +50,7 @@ public class SearchHistoryService {
                 .id(searchHistory.getId())
                 // 검색 후에는 이미지 주인 관계 없이 가져오기
                 // 추후 친구 기능 추가 시 다른 친구가 올린 이미지 확인이 필요하기 때문
+                // 검색 기록을 저장할 때 소유자가 맞는지 확인함
                 .imageUrls(fileService.getFileUrlsByIds(searchHistory.getImageIds()))
                 .searchResult(searchHistory.getSearchResult())
                 .createdAt(searchHistory.getCreatedAt())

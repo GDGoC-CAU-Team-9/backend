@@ -19,7 +19,7 @@ public class SearchHistoryController {
     @GetMapping
     public ApiResponse<SearchHistoryResponse.PageResult> getMyHistories(
             @AuthenticationPrincipal Member member,
-            @Valid @RequestBody SearchHistoryRequest.PageRequest pageRequest
+            @Valid @ModelAttribute SearchHistoryRequest.PageRequest pageRequest
             ) {
         SearchHistoryResponse.PageResult memberHistories =
                 searchHistoryService.getMemberHistories(member, pageRequest.getPageNumber());

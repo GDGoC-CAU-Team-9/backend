@@ -1,5 +1,6 @@
 package com.gdg_team9.SafePlate.restaurant.domain;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,7 +13,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RestaurantSearchResult {
-    private List<String> items_extracted;
+    @JsonProperty("items_extracted")
+    private List<String> itemsExtracted;
     private List<Item> items;
     private Item best;
 
@@ -25,8 +27,11 @@ public class RestaurantSearchResult {
         private int score;
         private int risk;
         private double confidence;
-        private List<String> matched_avoid;
-        private List<String> suspected_ingredients;
-        private String reason_ko;
+        @JsonProperty("matched_avoid")
+        private List<String> matchedAvoid;
+        @JsonProperty("suspected_ingredients")
+        private List<String> suspectedIngredients;
+        @JsonProperty("reason_ko")
+        private String reasonKo;
     }
 }

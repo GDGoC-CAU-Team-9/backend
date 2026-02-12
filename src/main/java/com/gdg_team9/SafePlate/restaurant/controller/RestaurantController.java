@@ -25,7 +25,7 @@ public class RestaurantController {
             @Valid @RequestBody RestaurantRequest.SearchRequest searchRequest
     ) {
         RestaurantSearchResult searchResponse =
-                restaurantService.searchRestaurant(member.getUsername(), searchRequest);
+                restaurantService.searchRestaurant(member, searchRequest);
         return ApiResponse.onSuccess(searchResponse);
     }
 }

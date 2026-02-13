@@ -1,5 +1,6 @@
 package com.gdg_team9.SafePlate.restaurant.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 import java.util.List;
@@ -12,7 +13,8 @@ public class AiClientRequest {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class SearchRequest {
-        private String image_url;
+        @JsonProperty("image_url")
+        private String imageUrl;
         private List<String> avoid;
     }
 }

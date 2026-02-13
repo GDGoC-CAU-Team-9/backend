@@ -34,15 +34,37 @@ public class FileService {
     private final S3Presigner s3Presigner;
     private final S3FileRepository s3FileRepository;
 
-    public String getFileUrlById(Member member, long id) {
+    /**
+     * 파일 소유자를 검증하면서 file url (보기) 발급
+     * @param id 파일 id (DB에 저장된 id)
+     * @return file url
+     */
+    public String getFileUrlByMemberAndId(Member member, long id) {
         S3File s3File = s3FileRepository.findByIdAndMember(id, member)
                 .orElseThrow(() -> new GeneralException(ErrorStatus.FILE_NOT_FOUND));
 
         return getFileUrl(s3File);
     }
 
-    public List<String> getFileUrlsByIds(Member member, Collection<Long> ids) {
+    /**
+     * 파일 소유자를 검증하면서 file url (보기) 발급
+     * @param ids 파일 id (DB에 저장된 id)
+     * @return file url
+     */
+    public List<String> getFileUrlsByMemberAndIds(Member member, Collection<Long> ids) {
         return s3FileRepository.findAllByMemberAndIdIn(member, ids)
+                .stream()
+                .map(this::getFileUrl)
+                .toList();
+    }
+
+    /**
+     * 파일 소유자 검증 없이 file url (보기) 발급
+     * @param ids 파일 id (DB에 저장된 id)
+     * @return file url
+     */
+    public List<String> getFileUrlsByIds(Collection<Long> ids) {
+        return s3FileRepository.findAllByIdIn(ids)
                 .stream()
                 .map(this::getFileUrl)
                 .toList();

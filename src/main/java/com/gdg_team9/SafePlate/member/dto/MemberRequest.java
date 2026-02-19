@@ -25,7 +25,7 @@ public class MemberRequest {
         private String password;
 
         @NotBlank(message = "사용 언어는 필수 입력 항목입니다.")
-        @Pattern(regexp = "^[A-Z]{2}$", message = "언어는 2자리 대문자여야 합니다.")
+        @Pattern(regexp = "^[a-z]{2}$", message = "언어는 2자리 소문자여야 합니다.")
         private String language;
     }
 

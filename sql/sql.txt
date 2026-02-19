@@ -7,6 +7,6 @@ INSERT INTO `safeplate`.`allergy` (`name`) VALUES ('알류'), ('우유'), ('메�
 # 260219 회원가입시 name 컬럼 제거, language 컬럼 추가
 ALTER TABLE member ADD COLUMN language CHAR(2) NULL;
 -- 기존 데이터에 실제 언어값을 채워야 함 (임의값 X)
-UPDATE member SET language = 'KR' WHERE language IS NULL;
+UPDATE member SET language = 'ko' WHERE language IS NULL;
 ALTER TABLE member MODIFY COLUMN language CHAR(2) NOT NULL;
 ALTER TABLE member DROP COLUMN name;

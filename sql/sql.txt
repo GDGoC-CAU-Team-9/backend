@@ -3,3 +3,12 @@ CREATE SCHEMA `safeplate` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_
 # get allergy table test data
 USE safeplate;
 INSERT INTO `safeplate`.`allergy` (`name`) VALUES ('알류'), ('우유'), ('메밀'), ('땅콩'), ('대두'), ('밀'), ('잣'), ('호두'), ('게'), ('새우'), ('오징어'), ('고등어'), ('조개류'), ('굴'), ('전복'), ('홍합'), ('복숭아'), ('토마토'), ('닭고기'), ('돼지고기'), ('쇠고기'), ('아황산류');
+
+
+# 기피재로 테이블
+CREATE TABLE avoid_item (
+  member_id BIGINT PRIMARY KEY,
+  avoid_text TEXT NOT NULL,
+  updated_at DATETIME NOT NULL,
+  FOREIGN KEY (member_id) REFERENCES member(id)
+);

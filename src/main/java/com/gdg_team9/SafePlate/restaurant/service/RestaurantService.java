@@ -59,7 +59,7 @@ public class RestaurantService {
                     teamMemberRepository.findByIdAndMember(teamMemberId, member)
                             .orElseThrow(() -> new GeneralException(ErrorStatus.TEAM_NOT_FOUND));
 
-            List<SearchHistory> searchResults = teamMember.getTeam().getTeamMembers().stream()
+            List<SearchHistory> searchResults = teamMember.getTeam().getTeamMembers().parallelStream()
                     .map(tm -> {
                         // 팀원 각각에 대한 검색
                         RestaurantSearchResult searchResult =

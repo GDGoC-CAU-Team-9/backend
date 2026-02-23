@@ -123,7 +123,7 @@ public class TeamService {
                 .updatedAt(teamMember.getTeam().getUpdatedAt())
                 .members(
                         teamMember.getTeam().getTeamMembers().stream()
-                                .map(m -> m.getMember().getName())
+                                .map(m -> m.getMember().getEmail())
                                 .toList()
                 )
                 .build();

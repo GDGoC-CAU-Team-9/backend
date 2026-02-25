@@ -24,11 +24,19 @@ public class AvoidItemController {
         return ApiResponse.onSuccess(avoidItemService.getMyAvoid(member));
     }
 
-    @PostMapping("/my/text")
+    @PutMapping("/my")
     public ApiResponse<AvoidItemResponse.MyAvoidResponse> saveMyAvoid(
+            @AuthenticationPrincipal Member member,
+            @Valid @RequestBody AvoidItemRequest.SaveRequest request
+    ) {
+        return ApiResponse.onSuccess(avoidItemService.updateMyAvoid(member, request.getItems()));
+    }
+
+    @PostMapping("/my/search")
+    public ApiResponse<AvoidItemResponse.ExtractedAvoidResponse> searchMyAvoid(
             @AuthenticationPrincipal Member member,
             @Valid @RequestBody AvoidItemRequest.TextRequest request
     ) {
-        return ApiResponse.onSuccess(avoidItemService.saveFromText(member, request.getText()));
+        return ApiResponse.onSuccess(avoidItemService.extractMyAvoid(member, request.getText()));
     }
 }

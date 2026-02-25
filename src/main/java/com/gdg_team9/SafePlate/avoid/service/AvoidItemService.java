@@ -1,17 +1,20 @@
 package com.gdg_team9.SafePlate.avoid.service;
 
-import com.gdg_team9.SafePlate.avoid.ai.AvoidAiClient;
-import com.gdg_team9.SafePlate.avoid.ai.AvoidAiRequest;
-import com.gdg_team9.SafePlate.avoid.ai.AvoidAiResponse;
-import com.gdg_team9.SafePlate.avoid.domain.AvoidItem;
-import com.gdg_team9.SafePlate.avoid.dto.AvoidItemResponse;
-import com.gdg_team9.SafePlate.avoid.repository.AvoidItemRepository;
 import com.gdg_team9.SafePlate.api.code.status.ErrorStatus;
+import com.gdg_team9.SafePlate.avoid.domain.AvoidItem;
+import com.gdg_team9.SafePlate.avoid.dto.AvoidAiRequest;
+import com.gdg_team9.SafePlate.avoid.dto.AvoidAiResponse;
+import com.gdg_team9.SafePlate.avoid.dto.AvoidItemResponse;
+import com.gdg_team9.SafePlate.avoid.openfeign.AvoidAiClient;
+import com.gdg_team9.SafePlate.avoid.repository.AvoidItemRepository;
 import com.gdg_team9.SafePlate.exception.GeneralException;
 import com.gdg_team9.SafePlate.member.domain.Member;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
@@ -22,33 +25,57 @@ public class AvoidItemService {
     private final AvoidAiClient avoidAiClient;
 
     public AvoidItemResponse.MyAvoidResponse getMyAvoid(Member member) {
-        String avoidText = avoidItemRepository.findById(member.getId())
-                .map(AvoidItem::getAvoidText)
-                .orElse("");
+        List<String> avoidItem = avoidItemRepository.findById(member.getId())
+                .map(AvoidItem::getAvoidItems)
+                .orElse(List.of());
         return AvoidItemResponse.MyAvoidResponse.builder()
-                .avoidText(avoidText)
+                .avoidItems(avoidItem)
+                .build();
+    }
+
+    public AvoidItemResponse.ExtractedAvoidResponse extractMyAvoid(Member member, String text) {
+        AvoidAiResponse.ExtractResponse aiResponse;
+
+        try {
+            AvoidAiRequest.ExtractRequest request = AvoidAiRequest.ExtractRequest.builder()
+                    .userText(text)
+                    .lang("en") // TODO 회원별 언어 가져오기
+                    .build();
+            aiResponse = avoidAiClient.extractAvoid(request).getBody();
+        } catch (feign.RetryableException e) {
+            throw new GeneralException(ErrorStatus.AI_CONNECT_FAIL);
+        } catch (feign.FeignException e) {
+            throw new GeneralException(ErrorStatus.AI_SERVER_FAIL);
+        }
+
+        if (aiResponse == null) {
+            throw new GeneralException(ErrorStatus.AI_SERVER_FAIL);
+        }
+
+        return AvoidItemResponse.ExtractedAvoidResponse.builder()
+                .avoidItems(aiResponse.getCandidates())
+                .confirmQuestion(aiResponse.getConfirmQuestion())
                 .build();
     }
 
     @Transactional
-    public AvoidItemResponse.MyAvoidResponse saveFromText(Member member, String text) {
-        AvoidAiResponse.ExtractResponse aiResponse =
-                avoidAiClient.extractAvoid(new AvoidAiRequest.ExtractRequest(text)).getBody();
+    public AvoidItemResponse.MyAvoidResponse updateMyAvoid(Member member, List<String> avoidItems) {
+        Optional<AvoidItem> avoidItemOptional = avoidItemRepository.findById(member.getId());
+        AvoidItem avoidItem;
 
-        if (aiResponse == null || aiResponse.getAvoidText() == null) {
-            throw new GeneralException(ErrorStatus.AI_SERVER_FAIL);
+        if (avoidItemOptional.isPresent()) {
+            avoidItem = avoidItemOptional.get();
+            avoidItem.setAvoidItems(avoidItems);
+        } else {
+            avoidItem = AvoidItem.builder()
+                    .member(member)
+                    .avoidItems(avoidItems)
+                    .build();
+            avoidItemRepository.save(avoidItem);
         }
 
-        String avoidText = aiResponse.getAvoidText();
-
-        AvoidItem avoidItem = avoidItemRepository.findById(member.getId())
-                .orElseGet(() -> new AvoidItem(member, avoidText));
-
-        avoidItem.updateAvoidText(avoidText);
-        avoidItemRepository.save(avoidItem);
-
         return AvoidItemResponse.MyAvoidResponse.builder()
-                .avoidText(avoidText)
+                .avoidItems(avoidItems)
                 .build();
     }
 }

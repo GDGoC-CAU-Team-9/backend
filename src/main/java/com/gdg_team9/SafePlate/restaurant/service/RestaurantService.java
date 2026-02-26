@@ -69,6 +69,7 @@ public class RestaurantService {
         AiClientRequest.SearchRequest aiSearchRequest = AiClientRequest.SearchRequest.builder()
                 .imageUrl(imageUrls.get(0))
                 .avoid(userAllergies)
+                .lang("en") // TODO 회원별 언어 가져오기
                 .build();
         try {
             RestaurantSearchResult searchResult = aiClient.requestSearch(aiSearchRequest).getBody();

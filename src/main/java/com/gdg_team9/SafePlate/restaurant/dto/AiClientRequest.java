@@ -16,5 +16,6 @@ public class AiClientRequest {
         @JsonProperty("image_url")
         private String imageUrl;
         private List<String> avoid;
+        private String lang;
     }
 }

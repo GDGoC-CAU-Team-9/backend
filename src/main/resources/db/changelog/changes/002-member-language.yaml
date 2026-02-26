@@ -1,0 +1,40 @@
+databaseChangeLog:
+  - changeSet:
+      id: 002-add-member-language-column
+      author: gdg_team9
+      preConditions:
+        onFail: MARK_RAN
+        onError: HALT
+                   - tableExists:
+                   tableName: member
+                     - not:
+                         columnExists:
+                           tableName: member
+                           columnName: language
+      changes:
+        - addColumn:
+            tableName: member
+            columns:
+              - column:
+                  name: language
+                  type: varchar(2)
+                  defaultValue: ko
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: 003-drop-member-name-column
+      author: gdg_team9
+      preConditions:
+        onFail: MARK_RAN
+        onError: HALT
+                   - tableExists:
+                   tableName: member
+                     - columnExists:
+                         tableName: member
+                         columnName: name
+      changes:
+        - dropColumn:
+            tableName: member
+            columnName: name
+

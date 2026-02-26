@@ -1,4 +1,5 @@
 databaseChangeLog:
   - include:
       file: classpath:db/changelog/changes/001-create-search-history.yaml
-
+  - include:
+      file: classpath:db/changelog/changes/003-avoid-item.yaml

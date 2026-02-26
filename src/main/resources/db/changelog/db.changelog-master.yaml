@@ -1,4 +1,7 @@
 databaseChangeLog:
   - include:
       file: classpath:db/changelog/changes/001-create-search-history.yaml
-
+  - include:
+      file: classpath:db/changelog/changes/004-team-team-member.yaml
+  - include:
+      file: classpath:db/changelog/changes/005-search-history-json-update.yaml

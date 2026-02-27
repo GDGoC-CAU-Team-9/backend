@@ -1,0 +1,54 @@
+databaseChangeLog:
+  - changeSet:
+      id: 006-search-history-best-fields
+      author: gdg_team9
+      preConditions:
+        onFail: MARK_RAN
+        onError: HALT
+                   - tableExists:
+                   tableName: search_history
+      changes:
+        - sql:
+            dbms: mysql
+            sql: |
+              UPDATE search_history
+              SET search_result = JSON_SET(
+                search_result,
+                '$.best.reason', JSON_EXTRACT(search_result, '$.best.reason_ko'),
+                '$.best.menu_original', JSON_EXTRACT(search_result, '$.best.menu')
+              )
+              WHERE JSON_TYPE(JSON_EXTRACT(search_result, '$.best')) = 'OBJECT';
+
+  - changeSet:
+      id: 007-search-history-items-fields
+      author: gdg_team9
+      preConditions:
+        onFail: MARK_RAN
+        onError: HALT
+                   - tableExists:
+                   tableName: search_history
+      changes:
+        - sql:
+            dbms: mysql
+            sql: |
+              UPDATE search_history
+              SET search_result = JSON_SET(
+                search_result,
+                '$.items', (
+                  SELECT JSON_ARRAYAGG(
+                    JSON_SET(
+                      jt.item,
+                      '$.reason', JSON_EXTRACT(jt.item, '$.reason_ko'),
+                      '$.menu_original', JSON_EXTRACT(jt.item, '$.menu')
+                    )
+                  )
+                  FROM JSON_TABLE(
+                    search_result,
+                    '$.items[*]' COLUMNS (
+                      item JSON PATH '$'
+                    )
+                  ) jt
+                )
+              )
+              WHERE JSON_TYPE(JSON_EXTRACT(search_result, '$.items')) = 'ARRAY';
+

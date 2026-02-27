@@ -3,11 +3,11 @@ databaseChangeLog:
       id: 004-create-team-table
       author: gdg_team9
       preConditions:
-        onFail: MARK_RAN
-        onError: HALT
-                   - not:
-                   tableExists:
-                     tableName: team
+        - onFail: MARK_RAN
+        - onError: HALT
+        - not:
+            tableExists:
+              tableName: team
       changes:
         - createTable:
             tableName: team
@@ -35,11 +35,11 @@ databaseChangeLog:
       id: 005-create-team-member-table
       author: gdg_team9
       preConditions:
-        onFail: MARK_RAN
-        onError: HALT
-                   - not:
-                   tableExists:
-                     tableName: team_member
+        - onFail: MARK_RAN
+        - onError: HALT
+        - not:
+            tableExists:
+              tableName: team_member
       changes:
         - createTable:
             tableName: team_member

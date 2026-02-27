@@ -3,11 +3,11 @@ databaseChangeLog:
       id: 000-create-member-table
       author: gdg_team9
       preConditions:
-        onFail: MARK_RAN
-        onError: HALT
-                   - not:
-                   tableExists:
-                     tableName: member
+        - onFail: MARK_RAN
+        - onError: HALT
+        - not:
+            tableExists:
+              tableName: member
       changes:
         - createTable:
             tableName: member
@@ -38,11 +38,11 @@ databaseChangeLog:
       id: 001-create-allergy-table
       author: gdg_team9
       preConditions:
-        onFail: MARK_RAN
-        onError: HALT
-                   - not:
-                   tableExists:
-                     tableName: allergy
+        - onFail: MARK_RAN
+        - onError: HALT
+        - not:
+            tableExists:
+              tableName: allergy
       changes:
         - createTable:
             tableName: allergy
@@ -65,15 +65,15 @@ databaseChangeLog:
       id: 002-create-user-allergy-table
       author: gdg_team9
       preConditions:
-        onFail: MARK_RAN
-        onError: HALT
-                   - not:
-                   tableExists:
-                     tableName: user_allergy
-                     - tableExists:
-                         tableName: member
-                     - tableExists:
-                         tableName: allergy
+        - onFail: MARK_RAN
+        - onError: HALT
+        - not:
+            tableExists:
+              tableName: user_allergy
+        - tableExists:
+            tableName: member
+        - tableExists:
+            tableName: allergy
       changes:
         - createTable:
             tableName: user_allergy
@@ -111,13 +111,13 @@ databaseChangeLog:
       id: 003-create-s3-file-table
       author: gdg_team9
       preConditions:
-        onFail: MARK_RAN
-        onError: HALT
-                   - not:
-                   tableExists:
-                     tableName: s3_file
-                     - tableExists:
-                         tableName: member
+        - onFail: MARK_RAN
+        - onError: HALT
+        - not:
+            tableExists:
+              tableName: s3_file
+        - tableExists:
+            tableName: member
       changes:
         - createTable:
             tableName: s3_file

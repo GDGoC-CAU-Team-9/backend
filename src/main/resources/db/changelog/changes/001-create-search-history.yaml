@@ -2,6 +2,12 @@ databaseChangeLog:
   - changeSet:
       id: 001-create-search-history-table
       author: gdg_team9
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: HALT
+        - not:
+            tableExists:
+              tableName: search_history
       changes:
         - createTable:
             tableName: search_history
@@ -32,6 +38,6 @@ databaseChangeLog:
               - column:
                   name: created_at
                   type: timestamp(6)
-                  default: CURRENT_TIMESTAMP(6)
+                  defaultValueComputed: CURRENT_TIMESTAMP(6)
                   constraints:
                     nullable: false

@@ -3,10 +3,10 @@ databaseChangeLog:
       id: 006-search-history-best-fields
       author: gdg_team9
       preConditions:
-        onFail: MARK_RAN
-        onError: HALT
-                   - tableExists:
-                   tableName: search_history
+        - onFail: MARK_RAN
+        - onError: HALT
+        - tableExists:
+            tableName: search_history
       changes:
         - sql:
             dbms: mysql
@@ -23,10 +23,10 @@ databaseChangeLog:
       id: 007-search-history-items-fields
       author: gdg_team9
       preConditions:
-        onFail: MARK_RAN
-        onError: HALT
-                   - tableExists:
-                   tableName: search_history
+        - onFail: MARK_RAN
+        - onError: HALT
+        - tableExists:
+            tableName: search_history
       changes:
         - sql:
             dbms: mysql

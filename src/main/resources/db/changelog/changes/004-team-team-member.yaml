@@ -75,16 +75,4 @@ databaseChangeLog:
             constraintName: fk_team_member_team
             referencedTableName: team
             referencedColumnNames: id
-        - createIndex:
-            tableName: team_member
-            indexName: idx_team_member_member_id
-            columns:
-              - column:
-                  name: member_id
-        - createIndex:
-            tableName: team_member
-            indexName: idx_team_member_team_id
-            columns:
-              - column:
-                  name: team_id
 

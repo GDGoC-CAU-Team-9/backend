@@ -35,16 +35,3 @@ databaseChangeLog:
                   default: CURRENT_TIMESTAMP(6)
                   constraints:
                     nullable: false
-        - createIndex:
-            tableName: search_history
-            indexName: idx_search_history_member_id
-            columns:
-              - column:
-                  name: member_id
-        - createIndex:
-            tableName: search_history
-            indexName: idx_search_history_created_at
-            columns:
-              - column:
-                  name: created_at
-                  descending: true

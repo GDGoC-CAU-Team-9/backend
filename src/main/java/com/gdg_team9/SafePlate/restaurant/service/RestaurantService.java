@@ -1,7 +1,8 @@
 package com.gdg_team9.SafePlate.restaurant.service;
 
-import com.gdg_team9.SafePlate.allergy.repository.UserAllergyRepository;
 import com.gdg_team9.SafePlate.api.code.status.ErrorStatus;
+import com.gdg_team9.SafePlate.avoid.domain.AvoidItem;
+import com.gdg_team9.SafePlate.avoid.repository.AvoidItemRepository;
 import com.gdg_team9.SafePlate.exception.GeneralException;
 import com.gdg_team9.SafePlate.file.service.FileService;
 import com.gdg_team9.SafePlate.member.domain.Member;
@@ -24,7 +25,7 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class RestaurantService {
     private final AiClient aiClient;
-    private final UserAllergyRepository userAllergyRepository;
+    private final AvoidItemRepository avoidItemRepository;
     private final TeamMemberRepository teamMemberRepository;
     private final SearchHistoryRepository searchHistoryRepository;
 
@@ -42,26 +43,25 @@ public class RestaurantService {
             throw new GeneralException(ErrorStatus.FILE_NOT_OWNED);
         }
 
-        // TODO 팀 기능 추가에 따라 Set으로의 변경 검토
         List<String> userAllergies;
 
         Long teamMemberId = clientSearchRequest.getTeamMemberId();
         if (teamMemberId == null) {
-            userAllergies = userAllergyRepository.findByMember(member).stream()
-                    .map(userAllergy -> userAllergy.getAllergy().getName())
-                    .toList();
+            userAllergies = avoidItemRepository.findById(member.getId())
+                    .map(AvoidItem::getAvoidItems)
+                    .orElse(List.of());
         } else {
             TeamMember teamMember =
                     teamMemberRepository.findByIdAndMember(teamMemberId, member)
                             .orElseThrow(() -> new GeneralException(ErrorStatus.TEAM_NOT_FOUND));
+            List<Member> members = teamMember.getTeam().getTeamMembers().stream()
+                    .map(TeamMember::getMember)
+                    .toList();
 
-            // TODO 기피 재료 저장 방식 변경에 따른 수정 필요
-            // 추후 코드가 완전히 변경됨에 따라, 현재는 N+1 문제가 발생하는 임시 코드로 설정
-            userAllergies = teamMember.getTeam().getTeamMembers().stream()
-                    .flatMap(
-                            tm -> userAllergyRepository.findByMember(tm.getMember()).stream()
-                                    .map(userAllergy -> userAllergy.getAllergy().getName())
-                    )
+            userAllergies = avoidItemRepository.findAllByMemberIn(members)
+                    .stream()
+                    .flatMap(avoidItem -> avoidItem.getAvoidItems().stream())
+                    .distinct()
                     .toList();
         }
 
@@ -69,7 +69,7 @@ public class RestaurantService {
         AiClientRequest.SearchRequest aiSearchRequest = AiClientRequest.SearchRequest.builder()
                 .imageUrl(imageUrls.get(0))
                 .avoid(userAllergies)
-                .lang("en") // TODO 회원별 언어 가져오기
+                .lang(member.getLanguage())
                 .build();
         try {
             RestaurantSearchResult searchResult = aiClient.requestSearch(aiSearchRequest).getBody();

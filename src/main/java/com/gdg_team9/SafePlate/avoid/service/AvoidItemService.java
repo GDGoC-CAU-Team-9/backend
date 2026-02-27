@@ -39,7 +39,7 @@ public class AvoidItemService {
         try {
             AvoidAiRequest.ExtractRequest request = AvoidAiRequest.ExtractRequest.builder()
                     .userText(text)
-                    .lang("en") // TODO 회원별 언어 가져오기
+                    .lang(member.getLanguage())
                     .build();
             aiResponse = avoidAiClient.extractAvoid(request).getBody();
         } catch (feign.RetryableException e) {

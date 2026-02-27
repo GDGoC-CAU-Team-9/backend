@@ -10,3 +10,12 @@ ALTER TABLE member ADD COLUMN language CHAR(2) NULL;
 UPDATE member SET language = 'ko' WHERE language IS NULL;
 ALTER TABLE member MODIFY COLUMN language CHAR(2) NOT NULL;
 ALTER TABLE member DROP COLUMN name;
+
+
+# 기피재로 테이블
+CREATE TABLE avoid_item (
+  member_id BIGINT PRIMARY KEY,
+  avoid_text TEXT NOT NULL,
+  updated_at DATETIME NOT NULL,
+  FOREIGN KEY (member_id) REFERENCES member(id)
+);

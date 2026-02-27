@@ -3,3 +3,5 @@ databaseChangeLog:
       file: classpath:db/changelog/changes/001-create-search-history.yaml
   - include:
       file: classpath:db/changelog/changes/002-member-language.yaml
+  - include:
+      file: classpath:db/changelog/changes/003-avoid-item.yaml

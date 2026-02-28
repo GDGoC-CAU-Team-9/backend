@@ -1,13 +1,3 @@
 databaseChangeLog:
-  - include:
-      file: classpath:db/changelog/changes/000-initial-schema.yaml
-  - include:
-      file: classpath:db/changelog/changes/001-create-search-history.yaml
-  - include:
-      file: classpath:db/changelog/changes/002-member-language.yaml
-  - include:
-      file: classpath:db/changelog/changes/003-avoid-item.yaml
-  - include:
-      file: classpath:db/changelog/changes/004-team-team-member.yaml
-  - include:
-      file: classpath:db/changelog/changes/005-search-history-json-update.yaml
+  - includeAll:
+      path: classpath:db/changelog/changes

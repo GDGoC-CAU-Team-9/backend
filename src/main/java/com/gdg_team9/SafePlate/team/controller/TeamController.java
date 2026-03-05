@@ -58,14 +58,13 @@ public class TeamController {
     /**
      * 팀 참여 (팀에 멤버 추가), 테스트용
      */
-    @PostMapping("/{teamId}/members")
+    @PostMapping("/join")
     public ApiResponse<TeamResponse.TeamInfoWithMembersResponse> joinTeam(
             @AuthenticationPrincipal Member member,
-            @PathVariable Long teamId,
-            @Valid @RequestBody TeamRequest.TeamNameRequest request
+            @Valid @RequestBody TeamRequest.TeamJoinRequest request
     ) {
         TeamResponse.TeamInfoWithMembersResponse response =
-                teamService.joinTeam(member, teamId, request.getTeamName());
+                teamService.joinTeam(member, request);
         return ApiResponse.onSuccess(response);
     }
 

@@ -5,6 +5,7 @@ import com.gdg_team9.SafePlate.exception.GeneralException;
 import com.gdg_team9.SafePlate.member.domain.Member;
 import com.gdg_team9.SafePlate.team.domain.Team;
 import com.gdg_team9.SafePlate.team.domain.TeamMember;
+import com.gdg_team9.SafePlate.team.dto.TeamRequest;
 import com.gdg_team9.SafePlate.team.dto.TeamResponse;
 import com.gdg_team9.SafePlate.team.repository.TeamMemberRepository;
 import com.gdg_team9.SafePlate.team.repository.TeamRepository;
@@ -80,14 +81,22 @@ public class TeamService {
     }
 
     @Transactional
-    public TeamResponse.TeamInfoWithMembersResponse joinTeam(Member member, long teamId, String teamName) {
-        Team team = teamRepository.findById(teamId)
+    public TeamResponse.TeamInfoWithMembersResponse joinTeam(Member member, TeamRequest.TeamJoinRequest request) {
+        TeamMember otherTeamMember = teamMemberRepository.findByIdAndMemberEmail(
+                        request.getTeamMemberId(),
+                        request.getTeamMemberEmail()
+                )
                 .orElseThrow(() -> new GeneralException(ErrorStatus.TEAM_NOT_FOUND));
+
+        Team targetedTeam = otherTeamMember.getTeam();
+        if (teamMemberRepository.existsByMemberAndTeamId(member, targetedTeam.getId())) {
+            throw new GeneralException(ErrorStatus.TEAM_ALREADY_JOINED);
+        }
 
         TeamMember teamMember = TeamMember.builder()
                 .member(member)
-                .team(team)
-                .name(teamName)
+                .team(targetedTeam)
+                .name(request.getTeamName())
                 .build();
 
         TeamMember saved = teamMemberRepository.save(teamMember);

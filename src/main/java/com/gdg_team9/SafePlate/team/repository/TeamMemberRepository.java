@@ -14,6 +14,8 @@ import java.util.Optional;
 public interface TeamMemberRepository extends JpaRepository<TeamMember, Long> {
     Optional<TeamMember> findByMemberAndTeamId(Member member, Long teamId);
 
+    boolean existsByMemberAndTeamId(Member member, Long teamId);
+
     @Query("""
             SELECT tm FROM TeamMember tm
             JOIN FETCH tm.team t
@@ -23,6 +25,9 @@ public interface TeamMemberRepository extends JpaRepository<TeamMember, Long> {
             """)
         // entity graph로 fetch join 불가
     Optional<TeamMember> findByIdAndMember(@Param("id") Long id, @Param("member") Member member);
+
+    @EntityGraph(attributePaths = {"team"})
+    Optional<TeamMember> findByIdAndMemberEmail(Long id, String memberEmail);
 
     @EntityGraph(attributePaths = {"team"})
         // paging 시 일대다 fetch join을 할 수 없음

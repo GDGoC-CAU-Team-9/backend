@@ -24,13 +24,14 @@ public class Member implements UserDetails {
     @Column(nullable = false)
     private String password;
 
-    private String name;
+    @Column(nullable = false, length = 2)
+    private String language;
 
     @Builder
-    public Member(String email,String password, String name) {
+    public Member(String email,String password, String language) {
         this.email = email;
         this.password = password;
-        this.name = name;
+        this.language = language;
     }
 
     @Override

@@ -16,7 +16,7 @@ public class MemberService {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Transactional
-    public void join(String email, String password, String name){
+    public void join(String email, String password, String language) {
         // 데이터베이스 예외 발생 이전에 로직에서 차단
         if (memberRepository.existsByEmail(email)) {
             throw new GeneralException(ErrorStatus.DUPLICATE_EMAIL);
@@ -27,7 +27,7 @@ public class MemberService {
         Member member = Member.builder()
                 .email(email)
                 .password(encodedPassword)
-                .name(name)
+                .language(language)
                 .build();
         memberRepository.save(member);
     }

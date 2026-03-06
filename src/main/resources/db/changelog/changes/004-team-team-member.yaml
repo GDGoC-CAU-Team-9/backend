@@ -1,0 +1,78 @@
+databaseChangeLog:
+  - changeSet:
+      id: 004-create-team-table
+      author: gdg_team9
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: HALT
+        - not:
+            tableExists:
+              tableName: team
+      changes:
+        - createTable:
+            tableName: team
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: created_at
+                  type: timestamp(6)
+                  defaultValueComputed: CURRENT_TIMESTAMP(6)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: timestamp(6)
+                  defaultValueComputed: CURRENT_TIMESTAMP(6)
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: 005-create-team-member-table
+      author: gdg_team9
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: HALT
+        - not:
+            tableExists:
+              tableName: team_member
+      changes:
+        - createTable:
+            tableName: team_member
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: member_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: team_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(96)
+        - addForeignKeyConstraint:
+            baseTableName: team_member
+            baseColumnNames: member_id
+            constraintName: fk_team_member_member
+            referencedTableName: member
+            referencedColumnNames: id
+        - addForeignKeyConstraint:
+            baseTableName: team_member
+            baseColumnNames: team_id
+            constraintName: fk_team_member_team
+            referencedTableName: team
+            referencedColumnNames: id
+

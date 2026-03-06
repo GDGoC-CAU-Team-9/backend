@@ -1,0 +1,65 @@
+databaseChangeLog:
+  - changeSet:
+      id: 003-create-avoid-item-table
+      author: gdg_team9
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: HALT
+        - not:
+            tableExists:
+              tableName: avoid_item
+      changes:
+        - createTable:
+            tableName: avoid_item
+            columns:
+              - column:
+                  name: member_id
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: avoid_text
+                  type: json
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: timestamp(6)
+                  defaultValueComputed: CURRENT_TIMESTAMP(6)
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: avoid_item
+            baseColumnNames: member_id
+            constraintName: fk_avoid_item_member
+            referencedTableName: member
+            referencedColumnNames: id
+
+  - changeSet:
+      id: 004-backfill-avoid-item
+      author: gdg_team9
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: HALT
+        - tableExists:
+            tableName: avoid_item
+        - tableExists:
+            tableName: user_allergy
+        - tableExists:
+            tableName: allergy
+      changes:
+        - sql:
+            dbms: mysql
+            sql: |
+              INSERT INTO avoid_item (member_id, avoid_text, updated_at)
+              SELECT ua.member_id,
+                     JSON_ARRAYAGG(a.name) AS avoid_text,
+                     NOW(6) AS updated_at
+              FROM user_allergy ua
+              JOIN allergy a ON a.id = ua.allergy_id
+              GROUP BY ua.member_id
+              ON DUPLICATE KEY UPDATE
+                avoid_text = VALUES(avoid_text),
+                updated_at = VALUES(updated_at);
+

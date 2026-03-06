@@ -1,0 +1,157 @@
+databaseChangeLog:
+  - changeSet:
+      id: 000-create-member-table
+      author: gdg_team9
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: HALT
+        - not:
+            tableExists:
+              tableName: member
+      changes:
+        - createTable:
+            tableName: member
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: email
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+                    unique: true
+                    uniqueConstraintName: UK_member_email
+              - column:
+                  name: name
+                  type: varchar(255)
+              - column:
+                  name: password
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: 001-create-allergy-table
+      author: gdg_team9
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: HALT
+        - not:
+            tableExists:
+              tableName: allergy
+      changes:
+        - createTable:
+            tableName: allergy
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: name
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+                    unique: true
+                    uniqueConstraintName: UK_allergy_name
+
+  - changeSet:
+      id: 002-create-user-allergy-table
+      author: gdg_team9
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: HALT
+        - not:
+            tableExists:
+              tableName: user_allergy
+        - tableExists:
+            tableName: member
+        - tableExists:
+            tableName: allergy
+      changes:
+        - createTable:
+            tableName: user_allergy
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: allergy_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: member_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: user_allergy
+            baseColumnNames: allergy_id
+            constraintName: FK_user_allergy_allergy
+            referencedTableName: allergy
+            referencedColumnNames: id
+        - addForeignKeyConstraint:
+            baseTableName: user_allergy
+            baseColumnNames: member_id
+            constraintName: FK_user_allergy_member
+            referencedTableName: member
+            referencedColumnNames: id
+
+  - changeSet:
+      id: 003-create-s3-file-table
+      author: gdg_team9
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: HALT
+        - not:
+            tableExists:
+              tableName: s3_file
+        - tableExists:
+            tableName: member
+      changes:
+        - createTable:
+            tableName: s3_file
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: file_name
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: path
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: enum('ERROR','UPLOADED','UPLOADING')
+                  constraints:
+                    nullable: false
+              - column:
+                  name: member_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: s3_file
+            baseColumnNames: member_id
+            constraintName: FK_s3_file_member
+            referencedTableName: member
+            referencedColumnNames: id
+

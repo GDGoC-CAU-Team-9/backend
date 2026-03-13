@@ -16,7 +16,7 @@ public enum ErrorStatus implements BaseErrorCode {
     _FORBIDDEN(HttpStatus.FORBIDDEN, "COMMON403", "금지된 요청입니다."),
 
     MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER4003", "해당하는 멤버가 없습니다."),
-    DUPLICATE_EMAIL(HttpStatus.NOT_FOUND, "MEMBER4004", "이미 존재하는 이메일입니다."),
+    DUPLICATE_EMAIL(HttpStatus.CONFLICT, "MEMBER4004", "이미 존재하는 이메일입니다."),
 
     AI_SERVER_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "AI5000", "AI 서버에서 문제가 발생했습니다."),
     AI_CONNECT_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "AI5001", "AI 서버와의 연결에 실패했습니다."),

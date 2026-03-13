@@ -16,6 +16,14 @@ public class MemberService {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Transactional
+    public void updateLanguage(String email, String language) {
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new GeneralException(ErrorStatus._UNAUTHORIZED));
+
+        member.changeLanguage(language);
+    }
+
+    @Transactional
     public void join(String email, String password, String language) {
         // 데이터베이스 예외 발생 이전에 로직에서 차단
         if (memberRepository.existsByEmail(email)) {

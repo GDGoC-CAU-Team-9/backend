@@ -1,10 +1,13 @@
 package com.gdg_team9.SafePlate.exception;
 
+import com.gdg_team9.SafePlate.api.ApiResponse;
+import com.gdg_team9.SafePlate.api.code.ErrorReasonDTO;
+import com.gdg_team9.SafePlate.api.code.status.ErrorStatus;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -14,9 +17,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
-import com.gdg_team9.SafePlate.api.ApiResponse;
-import com.gdg_team9.SafePlate.api.code.ErrorReasonDTO;
-import com.gdg_team9.SafePlate.api.code.status.ErrorStatus;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -29,45 +29,77 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
     @ExceptionHandler
     public ResponseEntity<Object> validation(ConstraintViolationException e, WebRequest request) {
         String errorMessage = e.getConstraintViolations().stream()
-                .map(constraintViolation -> constraintViolation.getMessage())
+                .map(ConstraintViolation::getMessage)
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("ConstraintViolationException 추출 도중 에러 발생"));
 
-        return handleExceptionInternalConstraint(e, ErrorStatus.valueOf(errorMessage), HttpHeaders.EMPTY,request);
+        return handleExceptionInternalConstraint(
+                e,
+                ErrorStatus.valueOf(errorMessage),
+                HttpHeaders.EMPTY,
+                request
+        );
     }
 
     @Override
-    public ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException e, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+    public ResponseEntity<Object> handleMethodArgumentNotValid(
+            MethodArgumentNotValidException e,
+            HttpHeaders headers,
+            HttpStatusCode status,
+            WebRequest request
+    ) {
 
         Map<String, String> errors = new LinkedHashMap<>();
 
         e.getBindingResult().getFieldErrors()
                 .forEach(fieldError -> {
                     String fieldName = fieldError.getField();
-                    String errorMessage = Optional.ofNullable(fieldError.getDefaultMessage()).orElse("");
-                    errors.merge(fieldName, errorMessage, (existingErrorMessage, newErrorMessage) -> existingErrorMessage + ", " + newErrorMessage);
+                    String errorMessage =
+                            Optional.ofNullable(fieldError.getDefaultMessage()).orElse("");
+                    errors.merge(fieldName, errorMessage,
+                            (existingErrorMessage, newErrorMessage) ->
+                                    existingErrorMessage + ", " + newErrorMessage
+                    );
                 });
 
-        return handleExceptionInternalArgs(e,HttpHeaders.EMPTY,ErrorStatus._BAD_REQUEST,request,errors);
+        return handleExceptionInternalArgs(
+                e,
+                HttpHeaders.EMPTY,
+                ErrorStatus._BAD_REQUEST,
+                request,
+                errors
+        );
     }
 
     @ExceptionHandler
     public ResponseEntity<Object> exception(Exception e, WebRequest request) {
-        log.error("Internal Server Error", e);
-
-        return handleExceptionInternalFalse(e, ErrorStatus._INTERNAL_SERVER_ERROR, HttpHeaders.EMPTY, ErrorStatus._INTERNAL_SERVER_ERROR.getHttpStatus(),request, e.getMessage());
+        return handleExceptionInternalFalse(
+                e,
+                ErrorStatus._INTERNAL_SERVER_ERROR,
+                HttpHeaders.EMPTY,
+                request,
+                e.getMessage()
+        );
     }
 
     @ExceptionHandler(value = GeneralException.class)
-    public ResponseEntity<Object> onThrowException(GeneralException generalException, HttpServletRequest request) {
+    public ResponseEntity<Object> onThrowException(
+            GeneralException generalException,
+            HttpServletRequest request
+    ) {
         ErrorReasonDTO errorReasonHttpStatus = generalException.getErrorReasonHttpStatus();
-        return handleExceptionInternal(generalException,errorReasonHttpStatus,null,request);
+        return handleExceptionInternal(generalException, errorReasonHttpStatus, null, request);
     }
 
-    private ResponseEntity<Object> handleExceptionInternal(Exception e, ErrorReasonDTO reason,
-                                                           HttpHeaders headers, HttpServletRequest request) {
+    private ResponseEntity<Object> handleExceptionInternal(
+            Exception e,
+            ErrorReasonDTO reason,
+            HttpHeaders headers,
+            HttpServletRequest request
+    ) {
 
-        ApiResponse<Object> body = ApiResponse.onFailure(reason.getCode(),reason.getMessage(),null);
+        ApiResponse<Object> body = ApiResponse.onFailure(reason.getCode(), reason.getMessage(), null);
+        logIfServerError(e, reason.getHttpStatus(), request.getRequestURI(), reason.getCode());
 
         WebRequest webRequest = new ServletWebRequest(request);
         return super.handleExceptionInternal(
@@ -79,21 +111,45 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
         );
     }
 
-    private ResponseEntity<Object> handleExceptionInternalFalse(Exception e, ErrorStatus errorCommonStatus,
-                                                                HttpHeaders headers, HttpStatus status, WebRequest request, String errorPoint) {
-        ApiResponse<Object> body = ApiResponse.onFailure(errorCommonStatus.getCode(),errorCommonStatus.getMessage(),errorPoint);
+    private ResponseEntity<Object> handleExceptionInternalFalse(
+            Exception e,
+            ErrorStatus errorStatus,
+            HttpHeaders headers,
+            WebRequest request,
+            String errorPoint
+    ) {
+        ApiResponse<Object> body = ApiResponse.onFailure(
+                errorStatus.getCode(),
+                errorStatus.getMessage(),
+                errorPoint
+        );
+
+        String requestPath = request instanceof ServletWebRequest servletWebRequest
+                ? servletWebRequest.getRequest().getRequestURI()
+                : "N/A";
+        logIfServerError(e, errorStatus.getHttpStatus(), requestPath, errorStatus.getCode());
+
         return super.handleExceptionInternal(
                 e,
                 body,
                 headers,
-                status,
+                errorStatus.getHttpStatus(),
                 request
         );
     }
 
-    private ResponseEntity<Object> handleExceptionInternalArgs(Exception e, HttpHeaders headers, ErrorStatus errorCommonStatus,
-                                                               WebRequest request, Map<String, String> errorArgs) {
-        ApiResponse<Object> body = ApiResponse.onFailure(errorCommonStatus.getCode(),errorCommonStatus.getMessage(),errorArgs);
+    private ResponseEntity<Object> handleExceptionInternalArgs(
+            Exception e,
+            HttpHeaders headers,
+            ErrorStatus errorCommonStatus,
+            WebRequest request,
+            Map<String, String> errorArgs
+    ) {
+        ApiResponse<Object> body = ApiResponse.onFailure(
+                errorCommonStatus.getCode(),
+                errorCommonStatus.getMessage(),
+                errorArgs
+        );
         return super.handleExceptionInternal(
                 e,
                 body,
@@ -103,9 +159,17 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
         );
     }
 
-    private ResponseEntity<Object> handleExceptionInternalConstraint(Exception e, ErrorStatus errorCommonStatus,
-                                                                     HttpHeaders headers, WebRequest request) {
-        ApiResponse<Object> body = ApiResponse.onFailure(errorCommonStatus.getCode(), errorCommonStatus.getMessage(), null);
+    private ResponseEntity<Object> handleExceptionInternalConstraint(
+            Exception e,
+            ErrorStatus errorCommonStatus,
+            HttpHeaders headers,
+            WebRequest request
+    ) {
+        ApiResponse<Object> body = ApiResponse.onFailure(
+                errorCommonStatus.getCode(),
+                errorCommonStatus.getMessage(),
+                null
+        );
         return super.handleExceptionInternal(
                 e,
                 body,
@@ -113,5 +177,22 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
                 errorCommonStatus.getHttpStatus(),
                 request
         );
+    }
+
+    private void logIfServerError(
+            Exception e,
+            HttpStatusCode status,
+            String requestPath,
+            String errorCode
+    ) {
+        if (status != null && status.is5xxServerError()) {
+            log.error(
+                    "Server error occurred. status={}, code={}, path={}",
+                    status.value(),
+                    errorCode,
+                    requestPath,
+                    e
+            );
+        }
     }
 }

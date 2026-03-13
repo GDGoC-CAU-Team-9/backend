@@ -34,6 +34,20 @@ public class FileService {
     private final S3Presigner s3Presigner;
     private final S3FileRepository s3FileRepository;
 
+    @Transactional
+    public String patchFileStatus(
+            Member member,
+            long id,
+            FileRequest.PatchStatusRequest patchStatusRequest
+    ) {
+        S3File s3File = s3FileRepository.findByIdAndMember(id, member)
+                .orElseThrow(() -> new GeneralException(ErrorStatus.FILE_NOT_FOUND));
+        s3File.setStatus(patchStatusRequest.getFileStatus());
+
+        // S3File 반환(URL)
+        return getFileUrl(s3File);
+    }
+
     /**
      * 파일 소유자를 검증하면서 file url (보기) 발급
      * @param id 파일 id (DB에 저장된 id)
@@ -44,18 +58,6 @@ public class FileService {
                 .orElseThrow(() -> new GeneralException(ErrorStatus.FILE_NOT_FOUND));
 
         return getFileUrl(s3File);
-    }
-
-    /**
-     * 파일 소유자를 검증하면서 file url (보기) 발급
-     * @param ids 파일 id (DB에 저장된 id)
-     * @return file url
-     */
-    public List<String> getFileUrlsByMemberAndIds(Member member, Collection<Long> ids) {
-        return s3FileRepository.findAllByMemberAndIdIn(member, ids)
-                .stream()
-                .map(this::getFileUrl)
-                .toList();
     }
 
     /**
@@ -70,18 +72,16 @@ public class FileService {
                 .toList();
     }
 
-    @Transactional
-    public String patchFileStatus(
-            Member member,
-            long id,
-            FileRequest.PatchStatusRequest patchStatusRequest
-    ) {
-        S3File s3File = s3FileRepository.findByIdAndMember(id, member)
-                .orElseThrow(() -> new GeneralException(ErrorStatus.FILE_NOT_FOUND));
-        s3File.setStatus(patchStatusRequest.getFileStatus());
-
-        // S3File 반환(URL)
-        return getFileUrl(s3File);
+    /**
+     * 파일 소유자를 검증하면서 file url (보기) 발급
+     * @param ids 파일 id (DB에 저장된 id)
+     * @return file url
+     */
+    public List<String> getFileUrlsByMemberAndIds(Member member, Collection<Long> ids) {
+        return s3FileRepository.findAllByMemberAndIdIn(member, ids)
+                .stream()
+                .map(this::getFileUrl)
+                .toList();
     }
 
     /**

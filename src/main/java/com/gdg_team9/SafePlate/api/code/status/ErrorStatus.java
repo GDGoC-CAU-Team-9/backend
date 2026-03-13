@@ -28,6 +28,8 @@ public enum ErrorStatus implements BaseErrorCode {
     TEAM_ALREADY_JOINED(HttpStatus.BAD_REQUEST, "GROUP4000", "이미 그룹에 가입되어 있습니다."),
     TEAM_NOT_ASSIGNED(HttpStatus.FORBIDDEN, "GROUP4003", "그룹의 멤버가 아닙니다."),
     TEAM_NOT_FOUND(HttpStatus.NOT_FOUND, "GROUP4004", "그룹을 찾을 수 없습니다."),
+
+    HISTORY_NOT_FOUND(HttpStatus.NOT_FOUND, "HISTORY4004", "검색 기록을 찾을 수 없습니다."),
     ;
 
     private final HttpStatus httpStatus;

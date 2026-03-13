@@ -1,6 +1,8 @@
 package com.gdg_team9.SafePlate.restaurant.service;
 
+import com.gdg_team9.SafePlate.api.code.status.ErrorStatus;
 import com.gdg_team9.SafePlate.file.service.FileService;
+import com.gdg_team9.SafePlate.exception.GeneralException;
 import com.gdg_team9.SafePlate.member.domain.Member;
 import com.gdg_team9.SafePlate.restaurant.domain.SearchHistory;
 import com.gdg_team9.SafePlate.restaurant.dto.SearchHistoryResponse;
@@ -42,6 +44,14 @@ public class SearchHistoryService {
                 .totalPages(searchHistories.getTotalPages())
                 .totalElements(searchHistories.getTotalElements())
                 .build();
+    }
+
+    @Transactional
+    public void deleteMemberHistory(Member member, long historyId) {
+        SearchHistory target = searchHistoryRepository.findByIdAndMember(historyId, member)
+                .orElseThrow(() -> new GeneralException(ErrorStatus.HISTORY_NOT_FOUND));
+
+        searchHistoryRepository.delete(target);
     }
 
     // 가독성을 위해 분리

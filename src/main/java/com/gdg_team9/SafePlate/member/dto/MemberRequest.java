@@ -33,6 +33,16 @@ public class MemberRequest {
     @Setter
     @NoArgsConstructor
     @AllArgsConstructor
+    public static class UpdateLanguageRequest {
+        @NotBlank(message = "사용 언어는 필수 입력 항목입니다.")
+        @Pattern(regexp = "^[a-z]{2}$", message = "언어는 2자리 소문자여야 합니다.")
+        private String language;
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class LoginRequest {
         @Email(message = "이메일 형식이 올바르지 않습니다.")
         @NotBlank(message = "이메일은 필수 입력 항목입니다.")

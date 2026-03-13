@@ -18,7 +18,7 @@ public class MemberService {
     @Transactional
     public void updateLanguage(String email, String language) {
         Member member = memberRepository.findByEmail(email)
-                .orElseThrow(() -> new GeneralException(ErrorStatus._UNAUTHORIZED));
+                .orElseThrow(() -> new GeneralException(ErrorStatus.MEMBER_NOT_FOUND));
 
         member.changeLanguage(language);
     }

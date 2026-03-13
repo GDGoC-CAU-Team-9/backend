@@ -8,26 +8,21 @@ import com.gdg_team9.SafePlate.team.service.TeamService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/teams")
 @RequiredArgsConstructor
 public class TeamController {
     private final TeamService teamService;
-
-    /**
-     * 팀 생성
-     */
-    @PostMapping
-    public ApiResponse<TeamResponse.TeamInfoWithMembersResponse> createTeam(
-            @AuthenticationPrincipal Member member,
-            @Valid @RequestBody TeamRequest.TeamNameRequest request
-    ) {
-        TeamResponse.TeamInfoWithMembersResponse response =
-                teamService.createTeam(member, request.getTeamName());
-        return ApiResponse.onSuccess(response);
-    }
 
     /**
      * 내 팀 목록 조회 (페이징), 팀 멤버 정보는 포함하지 않음
@@ -43,15 +38,28 @@ public class TeamController {
     }
 
     /**
-     * 팀 조회 (팀멤버 ID로 조회, 팀 멤버 정보 포함)
+     * 팀 생성
      */
-    @GetMapping("/{teamMemberId}")
-    public ApiResponse<TeamResponse.TeamInfoWithMembersResponse> getTeamByTeamMemberId(
+    @PostMapping
+    public ApiResponse<TeamResponse.TeamInfoWithMembersResponse> createTeam(
             @AuthenticationPrincipal Member member,
-            @PathVariable("teamMemberId") Long teamMemberId
+            @Valid @RequestBody TeamRequest.TeamNameRequest request
     ) {
         TeamResponse.TeamInfoWithMembersResponse response =
-                teamService.findTeamByMemberAndTeamMemberId(member, teamMemberId);
+                teamService.createTeam(member, request.getTeamName());
+        return ApiResponse.onSuccess(response);
+    }
+
+    /**
+     * 팀 나가기 (특정 팀멤버 삭제)
+     */
+    @DeleteMapping("/members/{teamMemberId}")
+    public ApiResponse<TeamResponse.TeamInfoSimpleResponse> exitTeam(
+            @AuthenticationPrincipal Member member,
+            @PathVariable Long teamMemberId
+    ) {
+        TeamResponse.TeamInfoSimpleResponse response =
+                teamService.exitTeam(member, teamMemberId);
         return ApiResponse.onSuccess(response);
     }
 
@@ -83,15 +91,15 @@ public class TeamController {
     }
 
     /**
-     * 팀 나가기 (특정 팀멤버 삭제)
+     * 팀 조회 (팀멤버 ID로 조회, 팀 멤버 정보 포함)
      */
-    @DeleteMapping("/members/{teamMemberId}")
-    public ApiResponse<TeamResponse.TeamInfoSimpleResponse> exitTeam(
+    @GetMapping("/{teamMemberId}")
+    public ApiResponse<TeamResponse.TeamInfoWithMembersResponse> getTeamByTeamMemberId(
             @AuthenticationPrincipal Member member,
-            @PathVariable Long teamMemberId
+            @PathVariable("teamMemberId") Long teamMemberId
     ) {
-        TeamResponse.TeamInfoSimpleResponse response =
-                teamService.exitTeam(member, teamMemberId);
+        TeamResponse.TeamInfoWithMembersResponse response =
+                teamService.findTeamByMemberAndTeamMemberId(member, teamMemberId);
         return ApiResponse.onSuccess(response);
     }
 }

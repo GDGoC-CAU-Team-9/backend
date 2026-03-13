@@ -24,15 +24,6 @@ public class AvoidItemService {
     private final AvoidItemRepository avoidItemRepository;
     private final AvoidAiClient avoidAiClient;
 
-    public AvoidItemResponse.MyAvoidResponse getMyAvoid(Member member) {
-        List<String> avoidItem = avoidItemRepository.findById(member.getId())
-                .map(AvoidItem::getAvoidItems)
-                .orElse(List.of());
-        return AvoidItemResponse.MyAvoidResponse.builder()
-                .avoidItems(avoidItem)
-                .build();
-    }
-
     public AvoidItemResponse.ExtractedAvoidResponse extractMyAvoid(Member member, String text) {
         AvoidAiResponse.ExtractResponse aiResponse;
 
@@ -55,6 +46,15 @@ public class AvoidItemService {
         return AvoidItemResponse.ExtractedAvoidResponse.builder()
                 .avoidItems(aiResponse.getCandidates())
                 .confirmQuestion(aiResponse.getConfirmQuestion())
+                .build();
+    }
+
+    public AvoidItemResponse.MyAvoidResponse getMyAvoid(Member member) {
+        List<String> avoidItem = avoidItemRepository.findById(member.getId())
+                .map(AvoidItem::getAvoidItems)
+                .orElse(List.of());
+        return AvoidItemResponse.MyAvoidResponse.builder()
+                .avoidItems(avoidItem)
                 .build();
     }
 

@@ -54,32 +54,6 @@ public class TeamService {
         return toTeamInfoSimpleResponse(teamMember);
     }
 
-    public TeamResponse.PageResult findTeamByMember(Member member, int pageNumber) {
-        PageRequest page = PageRequest.of(
-                pageNumber - 1,
-                pageSize
-        );
-
-        Page<TeamMember> teamMembers = teamMemberRepository.findByMember(member, page);
-
-        return TeamResponse.PageResult.builder()
-                .teamMembers(
-                        teamMembers.getContent().stream()
-                                .map(this::toTeamInfoWithoutMembersResponse)
-                                .toList()
-                )
-                .totalPages(teamMembers.getTotalPages())
-                .totalElements(teamMembers.getTotalElements())
-                .build();
-    }
-
-    public TeamResponse.TeamInfoWithMembersResponse findTeamByMemberAndTeamMemberId(Member member, long teamMemberId) {
-        TeamMember teamMember = teamMemberRepository.findByIdAndMember(teamMemberId, member)
-                .orElseThrow(() -> new GeneralException(ErrorStatus.TEAM_NOT_FOUND));
-
-        return toTeamInfoWithMembersResponse(teamMember);
-    }
-
     @Transactional
     public TeamResponse.TeamInfoWithMembersResponse joinTeam(Member member, TeamRequest.TeamJoinRequest request) {
         TeamMember otherTeamMember = teamMemberRepository.findByIdAndMemberEmail(
@@ -110,6 +84,32 @@ public class TeamService {
 
         teamMember.setName(newTeamName);
         return toTeamInfoWithoutMembersResponse(teamMember);
+    }
+
+    public TeamResponse.PageResult findTeamByMember(Member member, int pageNumber) {
+        PageRequest page = PageRequest.of(
+                pageNumber - 1,
+                pageSize
+        );
+
+        Page<TeamMember> teamMembers = teamMemberRepository.findByMember(member, page);
+
+        return TeamResponse.PageResult.builder()
+                .teamMembers(
+                        teamMembers.getContent().stream()
+                                .map(this::toTeamInfoWithoutMembersResponse)
+                                .toList()
+                )
+                .totalPages(teamMembers.getTotalPages())
+                .totalElements(teamMembers.getTotalElements())
+                .build();
+    }
+
+    public TeamResponse.TeamInfoWithMembersResponse findTeamByMemberAndTeamMemberId(Member member, long teamMemberId) {
+        TeamMember teamMember = teamMemberRepository.findByIdAndMember(teamMemberId, member)
+                .orElseThrow(() -> new GeneralException(ErrorStatus.TEAM_NOT_FOUND));
+
+        return toTeamInfoWithMembersResponse(teamMember);
     }
 
     private TeamResponse.TeamInfoSimpleResponse toTeamInfoSimpleResponse(

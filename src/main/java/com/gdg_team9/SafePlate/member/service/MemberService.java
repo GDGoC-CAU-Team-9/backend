@@ -16,8 +16,8 @@ public class MemberService {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Transactional
-    public void updateLanguage(String email, String language) {
-        Member member = memberRepository.findByEmail(email)
+    public void updateLanguage(Long memberId, String language) {
+        Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new GeneralException(ErrorStatus.MEMBER_NOT_FOUND));
 
         member.changeLanguage(language);

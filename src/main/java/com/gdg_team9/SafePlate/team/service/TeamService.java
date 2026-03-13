@@ -10,10 +10,13 @@ import com.gdg_team9.SafePlate.team.dto.TeamResponse;
 import com.gdg_team9.SafePlate.team.repository.TeamMemberRepository;
 import com.gdg_team9.SafePlate.team.repository.TeamRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @Transactional(readOnly = true)
@@ -73,8 +76,12 @@ public class TeamService {
                 .name(request.getTeamName())
                 .build();
 
-        TeamMember saved = teamMemberRepository.save(teamMember);
-        return toTeamInfoWithMembersResponse(saved);
+        try {
+            TeamMember saved = teamMemberRepository.save(teamMember);
+            return toTeamInfoWithMembersResponse(saved);
+        } catch (DataIntegrityViolationException e) {
+            throw new GeneralException(ErrorStatus.TEAM_ALREADY_JOINED);
+        }
     }
 
     @Transactional
@@ -124,17 +131,17 @@ public class TeamService {
     private TeamResponse.TeamInfoWithMembersResponse toTeamInfoWithMembersResponse(
             TeamMember teamMember
     ) {
+        List<String> memberEmails = teamMemberRepository.findMemberEmailsByTeamId(
+                teamMember.getTeam().getId()
+        );
+
         return TeamResponse.TeamInfoWithMembersResponse.builder()
                 .teamId(teamMember.getTeam().getId())
                 .teamName(teamMember.getName())
                 .teamMemberId(teamMember.getId())
                 .createdAt(teamMember.getTeam().getCreatedAt())
                 .updatedAt(teamMember.getTeam().getUpdatedAt())
-                .members(
-                        teamMember.getTeam().getTeamMembers().stream()
-                                .map(m -> m.getMember().getEmail())
-                                .toList()
-                )
+                .members(memberEmails)
                 .build();
     }
 

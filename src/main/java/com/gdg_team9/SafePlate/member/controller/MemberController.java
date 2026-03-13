@@ -24,7 +24,7 @@ public class MemberController {
             @AuthenticationPrincipal Member member,
             @Valid @RequestBody MemberRequest.UpdateLanguageRequest request
     ) {
-        memberService.updateLanguage(member.getEmail(), request.getLanguage());
+        memberService.updateLanguage(member.getId(), request.getLanguage());
         return ApiResponse.onSuccess(null);
     }
 }

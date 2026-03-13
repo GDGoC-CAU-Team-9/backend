@@ -1,0 +1,18 @@
+databaseChangeLog:
+  - changeSet:
+      id: 006-add-unique-team-member-member-team
+      author: gdg_team9
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: HALT
+        - tableExists:
+            tableName: team_member
+        - not:
+            uniqueConstraintExists:
+              tableName: team_member
+              constraintName: uk_team_member_member_team
+      changes:
+        - addUniqueConstraint:
+            tableName: team_member
+            columnNames: member_id, team_id
+            constraintName: uk_team_member_member_team

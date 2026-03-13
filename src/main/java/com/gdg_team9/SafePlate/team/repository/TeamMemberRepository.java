@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface TeamMemberRepository extends JpaRepository<TeamMember, Long> {
@@ -32,4 +33,10 @@ public interface TeamMemberRepository extends JpaRepository<TeamMember, Long> {
     @EntityGraph(attributePaths = {"team"})
         // paging 시 일대다 fetch join을 할 수 없음
     Page<TeamMember> findByMember(Member member, Pageable pageable);
+
+    @Query("""
+            SELECT tm.member.email FROM TeamMember tm
+            WHERE tm.team.id = :teamId
+            """)
+    List<String> findMemberEmailsByTeamId(@Param("teamId") Long teamId);
 }

@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: 007-add-result-image-ids-column
+      author: gdg_team9
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: HALT
+        - not:
+            - columnExists:
+                tableName: search_history
+                columnName: result_image_ids
+      changes:
+        - addColumn:
+            tableName: search_history
+            columns:
+              - column:
+                  name: result_image_ids
+                  type: json
+                  defaultValueComputed: (JSON_ARRAY())
+                  constraints:
+                    nullable: false

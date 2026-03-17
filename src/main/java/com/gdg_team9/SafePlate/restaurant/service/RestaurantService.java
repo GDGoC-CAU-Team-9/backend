@@ -4,6 +4,9 @@ import com.gdg_team9.SafePlate.api.code.status.ErrorStatus;
 import com.gdg_team9.SafePlate.avoid.domain.AvoidItem;
 import com.gdg_team9.SafePlate.avoid.repository.AvoidItemRepository;
 import com.gdg_team9.SafePlate.exception.GeneralException;
+import com.gdg_team9.SafePlate.file.domain.FileStatus;
+import com.gdg_team9.SafePlate.file.dto.FileRequest;
+import com.gdg_team9.SafePlate.file.dto.FileResponse;
 import com.gdg_team9.SafePlate.file.service.FileService;
 import com.gdg_team9.SafePlate.member.domain.Member;
 import com.gdg_team9.SafePlate.restaurant.domain.RestaurantSearchResult;
@@ -66,17 +69,32 @@ public class RestaurantService {
         }
 
         // TODO 이미지 여러 개 보낼 수 있도록 수정
+        FileRequest.PresignedUrlRequest presignedUrlRequest =
+                FileRequest.PresignedUrlRequest.builder()
+                        .path("menu_board_response")
+                        .fileType("png")
+                        .build();
+        FileResponse.PresignedUrlResponse preSignedUrl =
+                fileService.getPreSignedUrl(member, presignedUrlRequest);
+
         AiClientRequest.SearchRequest aiSearchRequest = AiClientRequest.SearchRequest.builder()
                 .imageUrl(imageUrls.get(0))
                 .avoid(userAllergies)
+                .presignedUrl(preSignedUrl.getPresignedUrl())
                 .lang(member.getLanguage())
                 .build();
         try {
             RestaurantSearchResult searchResult = aiClient.requestSearch(aiSearchRequest).getBody();
 
+            FileRequest.PatchStatusRequest statusRequest = FileRequest.PatchStatusRequest.builder()
+                    .fileStatus(FileStatus.UPLOADED)
+                    .build();
+            fileService.patchFileStatus(member, preSignedUrl.getFileId(), statusRequest);
+
             SearchHistory searchHistory = SearchHistory.builder()
                     .member(member)
                     .imageIds(clientSearchRequest.getIds())
+                    .resultImageIds(List.of(preSignedUrl.getFileId()))
                     .searchResult(searchResult)
                     .build();
 
@@ -84,8 +102,18 @@ public class RestaurantService {
             return searchResult;
 
         } catch (feign.RetryableException e) {
+            FileRequest.PatchStatusRequest statusRequest = FileRequest.PatchStatusRequest.builder()
+                    .fileStatus(FileStatus.ERROR)
+                    .build();
+            fileService.patchFileStatus(member, preSignedUrl.getFileId(), statusRequest);
+
             throw new GeneralException(ErrorStatus.AI_CONNECT_FAIL);
         } catch (feign.FeignException e) {
+            FileRequest.PatchStatusRequest statusRequest = FileRequest.PatchStatusRequest.builder()
+                    .fileStatus(FileStatus.ERROR)
+                    .build();
+            fileService.patchFileStatus(member, preSignedUrl.getFileId(), statusRequest);
+
             throw new GeneralException(ErrorStatus.AI_SERVER_FAIL);
         }
     }

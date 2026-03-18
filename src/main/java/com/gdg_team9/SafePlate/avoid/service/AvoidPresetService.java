@@ -30,32 +30,27 @@ public class AvoidPresetService {
      * 모든 Preset 조회 (사용자 언어로 번역된 이름과 항목 반환)
      */
     public AvoidPresetResponse.PresetListResponse getAllPresets(String userLanguage) {
-        List<AvoidPresetItemTranslation> itemTranslations =
-                avoidPresetItemTranslationRepository.findAllByLanguageOrderByItemOrder(userLanguage);
-        List<AvoidPresetTranslation> presetTranslations =
-                avoidPresetTranslationRepository.findAllByLanguage(userLanguage);
+        List<AvoidPreset> allPresets = avoidPresetRepository.findAll();
 
-        Map<Long, List<String>> itemsPerPresetId = itemTranslations.stream()
-                .collect(
-                        Collectors.groupingBy(
-                                item -> item.getAvoidPreset().getId(),
-                                Collectors.mapping(
-                                        AvoidPresetItemTranslation::getItemName,
-                                        Collectors.toList()
-                                )
-                        )
-                );
+        Map<Long, String> translatedNames = avoidPresetTranslationRepository.findAllByLanguage(userLanguage)
+                .stream()
+                .collect(Collectors.toMap(t -> t.getAvoidPreset().getId(), AvoidPresetTranslation::getTranslatedName));
 
+        Map<Long, List<String>> itemsPerPreset = avoidPresetItemTranslationRepository.findAllByLanguageOrderByItemOrder(userLanguage)
+                .stream()
+                .collect(Collectors.groupingBy(
+                        item -> item.getAvoidPreset().getId(),
+                        Collectors.mapping(AvoidPresetItemTranslation::getItemName, Collectors.toList())
+                ));
 
-        List<AvoidPresetResponse.PresetInfoResponse> presetInfos = presetTranslations.stream()
-                .map(translation -> AvoidPresetResponse.PresetInfoResponse.builder()
-                        .presetId(translation.getAvoidPreset().getId())
-                        .presetName(translation.getTranslatedName())
-                        .items(itemsPerPresetId.getOrDefault(translation.getAvoidPreset().getId(), List.of()))
-                        .createdAt(translation.getAvoidPreset().getCreatedAt())
-                        .updatedAt(translation.getAvoidPreset().getUpdatedAt())
-                        .build()
-                )
+        List<AvoidPresetResponse.PresetInfoResponse> presetInfos = allPresets.stream()
+                .map(preset -> AvoidPresetResponse.PresetInfoResponse.builder()
+                        .presetId(preset.getId())
+                        .presetName(translatedNames.getOrDefault(preset.getId(), preset.getPresetName()))
+                        .items(itemsPerPreset.getOrDefault(preset.getId(), List.of()))
+                        .createdAt(preset.getCreatedAt())
+                        .updatedAt(preset.getUpdatedAt())
+                        .build())
                 .toList();
 
         return AvoidPresetResponse.PresetListResponse.builder()

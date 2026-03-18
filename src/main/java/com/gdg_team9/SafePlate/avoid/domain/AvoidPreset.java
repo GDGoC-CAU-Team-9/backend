@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -28,7 +27,6 @@ public class AvoidPreset {
      * preset 이름(관리자 확인용 및 fallback값)
      */
     @Column(name = "preset_name", nullable = false, length = 100)
-    @Setter
     private String presetName;
 
     @OneToMany(mappedBy = "avoidPreset", cascade = CascadeType.ALL, orphanRemoval = true)

@@ -112,3 +112,195 @@ databaseChangeLog:
             constraintName: FK_AVOID_PRESET_TRANSLATION_ON_PRESET
             referencedColumnNames: id
             referencedTableName: avoid_preset
+
+  # Preset 1: Vegan (비건)
+  - changeSet:
+      id: 008-avoid-preset-insert-vegan
+      author: gdg_team9
+      changes:
+        - sql:
+            sql: |
+              INSERT INTO avoid_preset (preset_name, created_at, updated_at) VALUES ('VEGAN', NOW(), NOW());
+              
+              INSERT INTO avoid_preset_translation (preset_id, language, translated_name)
+              VALUES
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'VEGAN'), 'ko', '비건'),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'VEGAN'), 'en', 'Vegan'),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'VEGAN'), 'zh', '纯素食');
+
+              INSERT INTO avoid_preset_item_translation (preset_id, language, item_name, item_order)
+              VALUES
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'VEGAN'), 'ko', '동물성 식품', 1),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'VEGAN'), 'en', 'Animal products', 1),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'VEGAN'), 'zh', '动物产品', 1),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'VEGAN'), 'ko', '동물 유래 식품 첨가물', 2),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'VEGAN'), 'en', 'Animal-derived additives', 2),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'VEGAN'), 'zh', '动物源添加剂', 2),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'VEGAN'), 'ko', '동물성 성분', 3),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'VEGAN'), 'en', 'Animal ingredients', 3),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'VEGAN'), 'zh', '动物成分', 3);
+
+  # Preset 2: Islam (이슬람)
+  - changeSet:
+      id: 008-avoid-preset-insert-islam
+      author: gdg_team9
+      changes:
+        - sql:
+            sql: |
+              INSERT INTO avoid_preset (preset_name, created_at, updated_at) VALUES ('ISLAM', NOW(), NOW());
+              
+              INSERT INTO avoid_preset_translation (preset_id, language, translated_name)
+              VALUES
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'ISLAM'), 'ko', '이슬람'),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'ISLAM'), 'en', 'Islam (Halal)'),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'ISLAM'), 'zh', '伊斯兰教');
+
+              INSERT INTO avoid_preset_item_translation (preset_id, language, item_name, item_order)
+              VALUES
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'ISLAM'), 'ko', '돼지고기', 1),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'ISLAM'), 'en', 'Pork', 1),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'ISLAM'), 'zh', '猪肉', 1),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'ISLAM'), 'ko', '피', 2),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'ISLAM'), 'en', 'Blood', 2),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'ISLAM'), 'zh', '血液', 2),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'ISLAM'), 'ko', '알코올', 3),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'ISLAM'), 'en', 'Alcohol', 3),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'ISLAM'), 'zh', '酒精', 3);
+
+  # Preset 3: Judaism (유대교)
+  - changeSet:
+      id: 008-avoid-preset-insert-judaism
+      author: gdg_team9
+      changes:
+        - sql:
+            sql: |
+              INSERT INTO avoid_preset (preset_name, created_at, updated_at) VALUES ('JUDAISM', NOW(), NOW());
+              
+              INSERT INTO avoid_preset_translation (preset_id, language, translated_name)
+              VALUES
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'JUDAISM'), 'ko', '유대교'),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'JUDAISM'), 'en', 'Judaism (Kosher)'),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'JUDAISM'), 'zh', '犹太教');
+
+              INSERT INTO avoid_preset_item_translation (preset_id, language, item_name, item_order)
+              VALUES
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'JUDAISM'), 'ko', '돼지고기', 1),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'JUDAISM'), 'en', 'Pork', 1),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'JUDAISM'), 'zh', '猪肉', 1),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'JUDAISM'), 'ko', '비늘 없는 해산물', 2),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'JUDAISM'), 'en', 'Shellfish and scaleless seafood', 2),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'JUDAISM'), 'zh', '无鳞海鲜', 2),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'JUDAISM'), 'ko', '피', 3),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'JUDAISM'), 'en', 'Blood', 3),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'JUDAISM'), 'zh', '血液', 3),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'JUDAISM'), 'ko', '육류와 유제품 혼합', 4),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'JUDAISM'), 'en', 'Mixing meat and dairy', 4),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'JUDAISM'), 'zh', '肉类和乳制品混合', 4);
+
+  # Preset 4: Buddhism (불교)
+  - changeSet:
+      id: 008-avoid-preset-insert-buddhism
+      author: gdg_team9
+      changes:
+        - sql:
+            sql: |
+              INSERT INTO avoid_preset (preset_name, created_at, updated_at) VALUES ('BUDDHISM', NOW(), NOW());
+              
+              INSERT INTO avoid_preset_translation (preset_id, language, translated_name)
+              VALUES
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'BUDDHISM'), 'ko', '불교'),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'BUDDHISM'), 'en', 'Buddhism'),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'BUDDHISM'), 'zh', '佛教');
+
+              INSERT INTO avoid_preset_item_translation (preset_id, language, item_name, item_order)
+              VALUES
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'BUDDHISM'), 'ko', '동물성 식품', 1),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'BUDDHISM'), 'en', 'Animal products', 1),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'BUDDHISM'), 'zh', '动物产品', 1),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'BUDDHISM'), 'ko', '동물 유래 식품 첨가물', 2),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'BUDDHISM'), 'en', 'Animal-derived additives', 2),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'BUDDHISM'), 'zh', '动物源添加剂', 2),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'BUDDHISM'), 'ko', '동물성 성분', 3),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'BUDDHISM'), 'en', 'Animal ingredients', 3),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'BUDDHISM'), 'zh', '动物成分', 3);
+
+  # Preset 5: Jainism (자이나교)
+  - changeSet:
+      id: 008-avoid-preset-insert-jainism
+      author: gdg_team9
+      changes:
+        - sql:
+            sql: |
+              INSERT INTO avoid_preset (preset_name, created_at, updated_at) VALUES ('JAINISM', NOW(), NOW());
+              
+              INSERT INTO avoid_preset_translation (preset_id, language, translated_name)
+              VALUES
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'JAINISM'), 'ko', '자이나교'),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'JAINISM'), 'en', 'Jainism'),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'JAINISM'), 'zh', '耆那教');
+
+              INSERT INTO avoid_preset_item_translation (preset_id, language, item_name, item_order)
+              VALUES
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'JAINISM'), 'ko', '육류', 1),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'JAINISM'), 'en', 'Meat', 1),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'JAINISM'), 'zh', '肉类', 1),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'JAINISM'), 'ko', '생선', 2),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'JAINISM'), 'en', 'Fish', 2),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'JAINISM'), 'zh', '鱼', 2),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'JAINISM'), 'ko', '달걀', 3),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'JAINISM'), 'en', 'Eggs', 3),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'JAINISM'), 'zh', '鸡蛋', 3),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'JAINISM'), 'ko', '뿌리채소', 4),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'JAINISM'), 'en', 'Root vegetables', 4),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'JAINISM'), 'zh', '根菜类', 4),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'JAINISM'), 'ko', '꿀', 5),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'JAINISM'), 'en', 'Honey', 5),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'JAINISM'), 'zh', '蜂蜜', 5),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'JAINISM'), 'ko', '발효식품', 6),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'JAINISM'), 'en', 'Fermented foods', 6),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'JAINISM'), 'zh', '发酵食品', 6);
+
+  # Preset 6: Pregnancy (임산부)
+  - changeSet:
+      id: 008-avoid-preset-insert-pregnancy
+      author: gdg_team9
+      changes:
+        - sql:
+            sql: |
+              INSERT INTO avoid_preset (preset_name, created_at, updated_at) VALUES ('PREGNANCY', NOW(), NOW());
+              
+              INSERT INTO avoid_preset_translation (preset_id, language, translated_name)
+              VALUES
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'PREGNANCY'), 'ko', '임산부'),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'PREGNANCY'), 'en', 'Pregnancy'),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'PREGNANCY'), 'zh', '怀孕');
+
+              INSERT INTO avoid_preset_item_translation (preset_id, language, item_name, item_order)
+              VALUES
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'PREGNANCY'), 'ko', '날고기', 1),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'PREGNANCY'), 'en', 'Raw meat', 1),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'PREGNANCY'), 'zh', '生肉', 1),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'PREGNANCY'), 'ko', '사전 조리된 샐러드', 2),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'PREGNANCY'), 'en', 'Pre-made salads', 2),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'PREGNANCY'), 'zh', '预制沙拉', 2),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'PREGNANCY'), 'ko', '익히지 않은 새싹', 3),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'PREGNANCY'), 'en', 'Raw sprouts', 3),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'PREGNANCY'), 'zh', '生芽菜', 3),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'PREGNANCY'), 'ko', '열을 가하지 않은 치즈', 4),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'PREGNANCY'), 'en', 'Unpasteurized cheese', 4),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'PREGNANCY'), 'zh', '未巴氏消毒的奶酪', 4),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'PREGNANCY'), 'ko', '날계란', 5),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'PREGNANCY'), 'en', 'Raw eggs', 5),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'PREGNANCY'), 'zh', '生鸡蛋', 5),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'PREGNANCY'), 'ko', '반숙 계란', 6),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'PREGNANCY'), 'en', 'Soft-boiled eggs', 6),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'PREGNANCY'), 'zh', '半熟鸡蛋', 6),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'PREGNANCY'), 'ko', '익히지 않은 생선', 7),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'PREGNANCY'), 'en', 'Raw fish (sushi, sashimi, ceviche)', 7),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'PREGNANCY'), 'zh', '生鱼', 7),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'PREGNANCY'), 'ko', '수은 함량이 높은 생선', 8),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'PREGNANCY'), 'en', 'High-mercury fish', 8),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'PREGNANCY'), 'zh', '高汞鱼', 8),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'PREGNANCY'), 'ko', '익히지 않은 밀', 9),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'PREGNANCY'), 'en', 'Raw grain', 9),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'PREGNANCY'), 'zh', '生谷物', 9);

@@ -31,6 +31,8 @@ public enum ErrorStatus implements BaseErrorCode {
     TEAM_NOT_FOUND(HttpStatus.NOT_FOUND, "GROUP4004", "그룹을 찾을 수 없습니다."),
 
     HISTORY_NOT_FOUND(HttpStatus.NOT_FOUND, "HISTORY4004", "검색 기록을 찾을 수 없습니다."),
+
+    PRESET_NOT_FOUND(HttpStatus.NOT_FOUND, "PRESET4004", "프리셋을 찾을 수 없습니다."),
     ;
 
     private final HttpStatus httpStatus;

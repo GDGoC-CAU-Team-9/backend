@@ -1,0 +1,114 @@
+databaseChangeLog:
+  - changeSet:
+      id: 008-avoid-preset
+      author: gdg_team9
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: HALT
+        - not:
+            - tableExists:
+                tableName: avoid_preset
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: pk_avoid_preset
+                  name: id
+                  type: BIGINT
+              - column:
+                  constraints:
+                    nullable: false
+                  name: preset_name
+                  type: VARCHAR(100)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: created_at
+                  type: DATETIME
+              - column:
+                  constraints:
+                    nullable: false
+                  name: updated_at
+                  type: DATETIME
+            tableName: avoid_preset
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: pk_avoid_preset_item_translation
+                  name: id
+                  type: BIGINT
+              - column:
+                  constraints:
+                    nullable: false
+                  name: preset_id
+                  type: BIGINT
+              - column:
+                  constraints:
+                    nullable: false
+                  name: language
+                  type: VARCHAR(2)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: item_name
+                  type: VARCHAR(100)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: item_order
+                  type: INT
+            tableName: avoid_preset_item_translation
+        - addUniqueConstraint:
+            columnNames: preset_id, language, item_order
+            constraintName: uk_preset_item_language_order
+            tableName: avoid_preset_item_translation
+        - addForeignKeyConstraint:
+            baseColumnNames: preset_id
+            baseTableName: avoid_preset_item_translation
+            constraintName: FK_AVOID_PRESET_ITEM_TRANSLATION_ON_PRESET
+            referencedColumnNames: id
+            referencedTableName: avoid_preset
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: pk_avoid_preset_translation
+                  name: id
+                  type: BIGINT
+              - column:
+                  constraints:
+                    nullable: false
+                  name: preset_id
+                  type: BIGINT
+              - column:
+                  constraints:
+                    nullable: false
+                  name: language
+                  type: VARCHAR(2)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: translated_name
+                  type: VARCHAR(100)
+            tableName: avoid_preset_translation
+        - addUniqueConstraint:
+            columnNames: preset_id, language
+            constraintName: uk_preset_language
+            tableName: avoid_preset_translation
+        - addForeignKeyConstraint:
+            baseColumnNames: preset_id
+            baseTableName: avoid_preset_translation
+            constraintName: FK_AVOID_PRESET_TRANSLATION_ON_PRESET
+            referencedColumnNames: id
+            referencedTableName: avoid_preset

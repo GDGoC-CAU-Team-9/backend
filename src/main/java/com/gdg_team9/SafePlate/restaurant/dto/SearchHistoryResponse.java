@@ -27,6 +27,7 @@ public class SearchHistoryResponse {
         public static class Item {
             private long id;
             private List<String> imageUrls;
+            private List<String> resultImageUrls;
             private RestaurantSearchResult searchResult;
             private LocalDateTime createdAt;
         }

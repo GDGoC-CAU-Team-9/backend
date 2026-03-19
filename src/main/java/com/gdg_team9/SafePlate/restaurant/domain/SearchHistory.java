@@ -1,16 +1,7 @@
 package com.gdg_team9.SafePlate.restaurant.domain;
 
 import com.gdg_team9.SafePlate.member.domain.Member;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EntityListeners;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -42,6 +33,10 @@ public class SearchHistory {
     private List<Long> imageIds;
 
     @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "result_image_ids", nullable = false, columnDefinition = "json")
+    private List<Long> resultImageIds;
+
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "search_result", nullable = false, columnDefinition = "json")
     private RestaurantSearchResult searchResult;
 
@@ -50,9 +45,10 @@ public class SearchHistory {
     private LocalDateTime createdAt;
 
     @Builder
-    public SearchHistory(Member member, List<Long> imageIds, RestaurantSearchResult searchResult) {
+    public SearchHistory(Member member, List<Long> imageIds, List<Long> resultImageIds, RestaurantSearchResult searchResult) {
         this.member = member;
         this.imageIds = imageIds;
+        this.resultImageIds = resultImageIds;
         this.searchResult = searchResult;
     }
 }

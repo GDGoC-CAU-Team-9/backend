@@ -4,12 +4,16 @@ import com.gdg_team9.SafePlate.api.code.status.ErrorStatus;
 import com.gdg_team9.SafePlate.avoid.domain.AvoidItem;
 import com.gdg_team9.SafePlate.avoid.repository.AvoidItemRepository;
 import com.gdg_team9.SafePlate.exception.GeneralException;
+import com.gdg_team9.SafePlate.file.domain.FileStatus;
+import com.gdg_team9.SafePlate.file.dto.FileRequest;
+import com.gdg_team9.SafePlate.file.dto.FileResponse;
 import com.gdg_team9.SafePlate.file.service.FileService;
 import com.gdg_team9.SafePlate.member.domain.Member;
 import com.gdg_team9.SafePlate.restaurant.domain.RestaurantSearchResult;
 import com.gdg_team9.SafePlate.restaurant.domain.SearchHistory;
 import com.gdg_team9.SafePlate.restaurant.dto.AiClientRequest;
 import com.gdg_team9.SafePlate.restaurant.dto.RestaurantRequest;
+import com.gdg_team9.SafePlate.restaurant.dto.RestaurantResponse;
 import com.gdg_team9.SafePlate.restaurant.openfeign.AiClient;
 import com.gdg_team9.SafePlate.restaurant.repository.SearchHistoryRepository;
 import com.gdg_team9.SafePlate.team.domain.TeamMember;
@@ -32,7 +36,7 @@ public class RestaurantService {
     private final FileService fileService;
 
     @Transactional
-    public RestaurantSearchResult searchRestaurant(
+    public RestaurantResponse.SearchResult searchRestaurant(
             Member member,
             RestaurantRequest.SearchRequest clientSearchRequest
     ) {
@@ -43,11 +47,101 @@ public class RestaurantService {
             throw new GeneralException(ErrorStatus.FILE_NOT_OWNED);
         }
 
-        List<String> userAllergies;
+        List<String> userAllergies = extractUserAllergies(member, clientSearchRequest.getTeamMemberId());
 
-        Long teamMemberId = clientSearchRequest.getTeamMemberId();
+        // TODO 이미지 여러 개 보낼 수 있도록 수정
+        FileRequest.PresignedUrlRequest presignedUrlRequest =
+                FileRequest.PresignedUrlRequest.builder()
+                        .path("menu_board_response")
+                        .fileType("png")
+                        .build();
+        FileResponse.PresignedUrlResponse preSignedUrl =
+                fileService.getPreSignedUrl(member, presignedUrlRequest);
+
+        AiClientRequest.SearchRequest aiSearchRequest = AiClientRequest.SearchRequest.builder()
+                .imageUrl(imageUrls.get(0))
+                .avoid(userAllergies)
+                .presignedUrl(preSignedUrl.getPresignedUrl())
+                .lang(member.getLanguage())
+                .build();
+        try {
+            RestaurantSearchResult searchResult = aiClient.requestSearch(aiSearchRequest).getBody();
+
+            FileRequest.PatchStatusRequest statusRequest = FileRequest.PatchStatusRequest.builder()
+                    .fileStatus(FileStatus.UPLOADED)
+                    .build();
+            String resultImageUrl = fileService.patchFileStatus(member, preSignedUrl.getFileId(), statusRequest);
+
+            SearchHistory searchHistory = SearchHistory.builder()
+                    .member(member)
+                    .imageIds(clientSearchRequest.getIds())
+                    .resultImageIds(List.of(preSignedUrl.getFileId()))
+                    .searchResult(searchResult)
+                    .build();
+
+            searchHistoryRepository.save(searchHistory);
+
+            // RestaurantSearchResult -> RestaurantResponse.SearchResult 변환
+            return toSearchResultResponse(searchResult, resultImageUrl);
+
+        } catch (feign.RetryableException e) {
+            handleFileError(preSignedUrl.getFileId(), member);
+            throw new GeneralException(ErrorStatus.AI_CONNECT_FAIL);
+        } catch (feign.FeignException e) {
+            handleFileError(preSignedUrl.getFileId(), member);
+            throw new GeneralException(ErrorStatus.AI_SERVER_FAIL);
+        }
+    }
+
+    private void handleFileError(Long fileId, Member member) {
+        FileRequest.PatchStatusRequest statusRequest = FileRequest.PatchStatusRequest.builder()
+                .fileStatus(FileStatus.ERROR)
+                .build();
+        fileService.patchFileStatus(member, fileId, statusRequest);
+    }
+
+    private RestaurantResponse.SearchResult.Item toItemResponse(RestaurantSearchResult.Item item) {
+        return RestaurantResponse.SearchResult.Item.builder()
+                .menu(item.getMenu())
+                .menuOriginal(item.getMenuOriginal())
+                .score(item.getScore())
+                .risk(item.getRisk())
+                .confidence(item.getConfidence())
+                .matchedAvoid(item.getMatchedAvoid())
+                .suspectedIngredients(item.getSuspectedIngredients())
+                .reason(item.getReason())
+                .build();
+    }
+
+    private RestaurantResponse.SearchResult toSearchResultResponse(
+            RestaurantSearchResult searchResult,
+            String resultImageUrl
+    ) {
+        return RestaurantResponse.SearchResult.builder()
+                .itemsExtracted(searchResult.getItemsExtracted())
+                .items(searchResult.getItems().stream()
+                        .map(this::toItemResponse)
+                        .toList()
+                )
+                .best(toItemResponse(searchResult.getBest()))
+                .resultImageUrls(List.of(resultImageUrl))
+                .timingsMs(toTimingsResponse(searchResult.getTimingsMs()))
+                .build();
+    }
+
+    private RestaurantResponse.SearchResult.Timings toTimingsResponse(RestaurantSearchResult.Timings timings) {
+        return RestaurantResponse.SearchResult.Timings.builder()
+                .imageLoad(timings.getImageLoad())
+                .extract(timings.getExtract())
+                .riskAssess(timings.getRiskAssess())
+                .scorePolicy(timings.getScorePolicy())
+                .total(timings.getTotal())
+                .build();
+    }
+
+    private List<String> extractUserAllergies(Member member, Long teamMemberId) {
         if (teamMemberId == null) {
-            userAllergies = avoidItemRepository.findById(member.getId())
+            return avoidItemRepository.findById(member.getId())
                     .map(AvoidItem::getAvoidItems)
                     .orElse(List.of());
         } else {
@@ -58,35 +152,11 @@ public class RestaurantService {
                     .map(TeamMember::getMember)
                     .toList();
 
-            userAllergies = avoidItemRepository.findAllByMemberIn(members)
+            return avoidItemRepository.findAllByMemberIn(members)
                     .stream()
                     .flatMap(avoidItem -> avoidItem.getAvoidItems().stream())
                     .distinct()
                     .toList();
-        }
-
-        // TODO 이미지 여러 개 보낼 수 있도록 수정
-        AiClientRequest.SearchRequest aiSearchRequest = AiClientRequest.SearchRequest.builder()
-                .imageUrl(imageUrls.get(0))
-                .avoid(userAllergies)
-                .lang(member.getLanguage())
-                .build();
-        try {
-            RestaurantSearchResult searchResult = aiClient.requestSearch(aiSearchRequest).getBody();
-
-            SearchHistory searchHistory = SearchHistory.builder()
-                    .member(member)
-                    .imageIds(clientSearchRequest.getIds())
-                    .searchResult(searchResult)
-                    .build();
-
-            searchHistoryRepository.save(searchHistory);
-            return searchResult;
-
-        } catch (feign.RetryableException e) {
-            throw new GeneralException(ErrorStatus.AI_CONNECT_FAIL);
-        } catch (feign.FeignException e) {
-            throw new GeneralException(ErrorStatus.AI_SERVER_FAIL);
         }
     }
 }

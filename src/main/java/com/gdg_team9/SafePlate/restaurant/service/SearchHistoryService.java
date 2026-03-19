@@ -1,8 +1,8 @@
 package com.gdg_team9.SafePlate.restaurant.service;
 
 import com.gdg_team9.SafePlate.api.code.status.ErrorStatus;
-import com.gdg_team9.SafePlate.file.service.FileService;
 import com.gdg_team9.SafePlate.exception.GeneralException;
+import com.gdg_team9.SafePlate.file.service.FileService;
 import com.gdg_team9.SafePlate.member.domain.Member;
 import com.gdg_team9.SafePlate.restaurant.domain.SearchHistory;
 import com.gdg_team9.SafePlate.restaurant.dto.SearchHistoryResponse;
@@ -62,6 +62,7 @@ public class SearchHistoryService {
                 // 추후 친구 기능 추가 시 다른 친구가 올린 이미지 확인이 필요하기 때문
                 // 검색 기록을 저장할 때 소유자가 맞는지 확인함
                 .imageUrls(fileService.getFileUrlsByIds(searchHistory.getImageIds()))
+                .resultImageUrls(fileService.getFileUrlsByIds(searchHistory.getResultImageIds()))
                 .searchResult(searchHistory.getSearchResult())
                 .createdAt(searchHistory.getCreatedAt())
                 .build();

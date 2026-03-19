@@ -3,15 +3,13 @@ package com.gdg_team9.SafePlate.file.dto;
 import com.gdg_team9.SafePlate.file.domain.FileStatus;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 public class FileRequest {
 
     @Getter
     @Setter
+    @Builder
     @NoArgsConstructor
     @AllArgsConstructor
     public static class PresignedUrlRequest {
@@ -30,6 +28,7 @@ public class FileRequest {
 
     @Getter
     @Setter
+    @Builder
     @NoArgsConstructor
     @AllArgsConstructor
     public static class PatchStatusRequest {

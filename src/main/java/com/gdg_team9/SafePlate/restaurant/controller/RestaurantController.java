@@ -2,8 +2,8 @@ package com.gdg_team9.SafePlate.restaurant.controller;
 
 import com.gdg_team9.SafePlate.api.ApiResponse;
 import com.gdg_team9.SafePlate.member.domain.Member;
-import com.gdg_team9.SafePlate.restaurant.domain.RestaurantSearchResult;
 import com.gdg_team9.SafePlate.restaurant.dto.RestaurantRequest;
+import com.gdg_team9.SafePlate.restaurant.dto.RestaurantResponse;
 import com.gdg_team9.SafePlate.restaurant.service.RestaurantService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,11 +20,11 @@ public class RestaurantController {
     private final RestaurantService restaurantService;
 
     @PostMapping("/search")
-    public ApiResponse<RestaurantSearchResult> searchRestaurant(
+    public ApiResponse<RestaurantResponse.SearchResult> searchRestaurant(
             @AuthenticationPrincipal Member member,
             @Valid @RequestBody RestaurantRequest.SearchRequest searchRequest
     ) {
-        RestaurantSearchResult searchResponse =
+        RestaurantResponse.SearchResult searchResponse =
                 restaurantService.searchRestaurant(member, searchRequest);
         return ApiResponse.onSuccess(searchResponse);
     }

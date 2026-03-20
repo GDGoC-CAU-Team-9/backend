@@ -16,6 +16,9 @@ public class AiClientRequest {
         @JsonProperty("image_url")
         private String imageUrl;
 
+        @JsonProperty("menu_lang")
+        private String menuLang;
+
         @JsonProperty("presigned_url")
         private String presignedUrl;
 

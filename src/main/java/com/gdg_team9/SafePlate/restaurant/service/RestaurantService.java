@@ -19,6 +19,7 @@ import com.gdg_team9.SafePlate.restaurant.repository.SearchHistoryRepository;
 import com.gdg_team9.SafePlate.team.domain.TeamMember;
 import com.gdg_team9.SafePlate.team.repository.TeamMemberRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +28,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
+@Slf4j
 public class RestaurantService {
     private final AiClient aiClient;
     private final AvoidItemRepository avoidItemRepository;
@@ -60,6 +62,7 @@ public class RestaurantService {
 
         AiClientRequest.SearchRequest aiSearchRequest = AiClientRequest.SearchRequest.builder()
                 .imageUrl(imageUrls.get(0))
+                .menuLang(clientSearchRequest.getMenuLang())
                 .avoid(userAllergies)
                 .presignedUrl(preSignedUrl.getPresignedUrl())
                 .lang(member.getLanguage())
@@ -85,9 +88,11 @@ public class RestaurantService {
             return toSearchResultResponse(searchResult, resultImageUrl);
 
         } catch (feign.RetryableException e) {
+            log.error(e.getMessage(), e);
             handleFileError(preSignedUrl.getFileId(), member);
             throw new GeneralException(ErrorStatus.AI_CONNECT_FAIL);
         } catch (feign.FeignException e) {
+            log.error(e.getMessage(), e);
             handleFileError(preSignedUrl.getFileId(), member);
             throw new GeneralException(ErrorStatus.AI_SERVER_FAIL);
         }

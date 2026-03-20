@@ -304,3 +304,109 @@ databaseChangeLog:
               ((SELECT id FROM avoid_preset WHERE preset_name = 'PREGNANCY'), 'ko', '익히지 않은 밀', 9),
               ((SELECT id FROM avoid_preset WHERE preset_name = 'PREGNANCY'), 'en', 'Raw grain', 9),
               ((SELECT id FROM avoid_preset WHERE preset_name = 'PREGNANCY'), 'zh', '生谷物', 9);
+
+  # Add Spanish translations for Vegan preset
+  - changeSet:
+      id: 008-add-spanish-vegan
+      author: gdg_team9
+      changes:
+        - sql:
+            sql: |
+              INSERT INTO avoid_preset_translation (preset_id, language, translated_name)
+              VALUES ((SELECT id FROM avoid_preset WHERE preset_name = 'VEGAN'), 'es', 'Vegano');
+              
+              INSERT INTO avoid_preset_item_translation (preset_id, language, item_name, item_order)
+              VALUES
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'VEGAN'), 'es', 'Productos de origen animal', 1),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'VEGAN'), 'es', 'Aditivos derivados de animales', 2),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'VEGAN'), 'es', 'Ingredientes de origen animal', 3);
+
+  # Add Spanish translations for Islam preset
+  - changeSet:
+      id: 008-add-spanish-islam
+      author: gdg_team9
+      changes:
+        - sql:
+            sql: |
+              INSERT INTO avoid_preset_translation (preset_id, language, translated_name)
+              VALUES ((SELECT id FROM avoid_preset WHERE preset_name = 'ISLAM'), 'es', 'Islam (Halal)');
+              
+              INSERT INTO avoid_preset_item_translation (preset_id, language, item_name, item_order)
+              VALUES
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'ISLAM'), 'es', 'Cerdo', 1),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'ISLAM'), 'es', 'Sangre', 2),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'ISLAM'), 'es', 'Alcohol', 3);
+
+  # Add Spanish translations for Judaism preset
+  - changeSet:
+      id: 008-add-spanish-judaism
+      author: gdg_team9
+      changes:
+        - sql:
+            sql: |
+              INSERT INTO avoid_preset_translation (preset_id, language, translated_name)
+              VALUES ((SELECT id FROM avoid_preset WHERE preset_name = 'JUDAISM'), 'es', 'Judaísmo (Kosher)');
+              
+              INSERT INTO avoid_preset_item_translation (preset_id, language, item_name, item_order)
+              VALUES
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'JUDAISM'), 'es', 'Cerdo', 1),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'JUDAISM'), 'es', 'Mariscos sin escamas', 2),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'JUDAISM'), 'es', 'Sangre', 3),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'JUDAISM'), 'es', 'Mezcla de carne y lácteos', 4);
+
+  # Add Spanish translations for Buddhism preset
+  - changeSet:
+      id: 008-add-spanish-buddhism
+      author: gdg_team9
+      changes:
+        - sql:
+            sql: |
+              INSERT INTO avoid_preset_translation (preset_id, language, translated_name)
+              VALUES ((SELECT id FROM avoid_preset WHERE preset_name = 'BUDDHISM'), 'es', 'Budismo');
+              
+              INSERT INTO avoid_preset_item_translation (preset_id, language, item_name, item_order)
+              VALUES
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'BUDDHISM'), 'es', 'Productos de origen animal', 1),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'BUDDHISM'), 'es', 'Aditivos derivados de animales', 2),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'BUDDHISM'), 'es', 'Ingredientes de origen animal', 3);
+
+  # Add Spanish translations for Jainism preset
+  - changeSet:
+      id: 008-add-spanish-jainism
+      author: gdg_team9
+      changes:
+        - sql:
+            sql: |
+              INSERT INTO avoid_preset_translation (preset_id, language, translated_name)
+              VALUES ((SELECT id FROM avoid_preset WHERE preset_name = 'JAINISM'), 'es', 'Jainismo');
+              
+              INSERT INTO avoid_preset_item_translation (preset_id, language, item_name, item_order)
+              VALUES
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'JAINISM'), 'es', 'Carne', 1),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'JAINISM'), 'es', 'Pescado', 2),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'JAINISM'), 'es', 'Huevos', 3),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'JAINISM'), 'es', 'Verduras de raíz', 4),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'JAINISM'), 'es', 'Miel', 5),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'JAINISM'), 'es', 'Alimentos fermentados', 6);
+
+  # Add Spanish translations for Pregnancy preset
+  - changeSet:
+      id: 008-add-spanish-pregnancy
+      author: gdg_team9
+      changes:
+        - sql:
+            sql: |
+              INSERT INTO avoid_preset_translation (preset_id, language, translated_name)
+              VALUES ((SELECT id FROM avoid_preset WHERE preset_name = 'PREGNANCY'), 'es', 'Embarazo');
+              
+              INSERT INTO avoid_preset_item_translation (preset_id, language, item_name, item_order)
+              VALUES
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'PREGNANCY'), 'es', 'Carne cruda', 1),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'PREGNANCY'), 'es', 'Ensaladas prehecha', 2),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'PREGNANCY'), 'es', 'Brotes crudos', 3),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'PREGNANCY'), 'es', 'Queso sin pasteurizar', 4),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'PREGNANCY'), 'es', 'Huevos crudos', 5),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'PREGNANCY'), 'es', 'Huevos semicrudos', 6),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'PREGNANCY'), 'es', 'Pescado crudo', 7),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'PREGNANCY'), 'es', 'Pescado alto en mercurio', 8),
+              ((SELECT id FROM avoid_preset WHERE preset_name = 'PREGNANCY'), 'es', 'Grano crudo', 9);

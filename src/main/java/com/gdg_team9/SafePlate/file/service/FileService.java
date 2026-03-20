@@ -45,11 +45,16 @@ public class FileService {
         s3File.setStatus(patchStatusRequest.getFileStatus());
 
         // S3File 반환(URL)
-        return getFileUrl(s3File);
+        if (s3File.getStatus().isAvailable()) {
+            return getFileUrl(s3File);
+        } else {
+            return null;
+        }
     }
 
     /**
      * 파일 소유자를 검증하면서 file url (보기) 발급
+     *
      * @param id 파일 id (DB에 저장된 id)
      * @return file url
      */
@@ -62,6 +67,7 @@ public class FileService {
 
     /**
      * 파일 소유자 검증 없이 file url (보기) 발급
+     *
      * @param ids 파일 id (DB에 저장된 id)
      * @return file url
      */
@@ -74,6 +80,7 @@ public class FileService {
 
     /**
      * 파일 소유자를 검증하면서 file url (보기) 발급
+     *
      * @param ids 파일 id (DB에 저장된 id)
      * @return file url
      */
@@ -86,6 +93,7 @@ public class FileService {
 
     /**
      * presigned url 발급
+     *
      * @param presignedUrlRequest 버킷 디렉토리 이름, 클라이언트가 전달한 파일명 파라미터
      * @return presigned url
      */
@@ -111,7 +119,7 @@ public class FileService {
                 .key(s3File.getFullFileName())
                 .build();
         PutObjectPresignRequest putObjectPresignRequest = PutObjectPresignRequest.builder()
-                .signatureDuration(Duration.ofMinutes(1))
+                .signatureDuration(Duration.ofMinutes(3))
                 .putObjectRequest(putObjectRequest)
                 .build();
         URL url = s3Presigner.presignPutObject(putObjectPresignRequest).url();
@@ -142,6 +150,7 @@ public class FileService {
 
     /**
      * 파일 고유 ID를 생성
+     *
      * @return 36자리의 UUID
      */
     private String createFileId() {

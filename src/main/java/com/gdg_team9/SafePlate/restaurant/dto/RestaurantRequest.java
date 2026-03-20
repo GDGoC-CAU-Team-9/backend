@@ -20,5 +20,8 @@ public class RestaurantRequest {
 
         // nullable
         private Long teamMemberId;
+
+        @NotNull(message = "메뉴판 언어는 필수 입력 항목입니다.")
+        private String menuLang;
     }
 }

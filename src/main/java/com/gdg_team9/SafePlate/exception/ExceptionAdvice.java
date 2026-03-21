@@ -1,6 +1,6 @@
 package com.gdg_team9.SafePlate.exception;
 
-import com.gdg_team9.SafePlate.api.ApiResponse;
+import com.gdg_team9.SafePlate.api.CommonResponse;
 import com.gdg_team9.SafePlate.api.code.ErrorReasonDTO;
 import com.gdg_team9.SafePlate.api.code.status.ErrorStatus;
 import jakarta.servlet.http.HttpServletRequest;
@@ -98,7 +98,7 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
             HttpServletRequest request
     ) {
 
-        ApiResponse<Object> body = ApiResponse.onFailure(reason.getCode(), reason.getMessage(), null);
+        CommonResponse<Object> body = CommonResponse.onFailure(reason.getCode(), reason.getMessage(), null);
         logIfServerError(e, reason.getHttpStatus(), request.getRequestURI(), reason.getCode());
 
         WebRequest webRequest = new ServletWebRequest(request);
@@ -118,7 +118,7 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
             WebRequest request,
             String errorPoint
     ) {
-        ApiResponse<Object> body = ApiResponse.onFailure(
+        CommonResponse<Object> body = CommonResponse.onFailure(
                 errorStatus.getCode(),
                 errorStatus.getMessage(),
                 errorPoint
@@ -145,7 +145,7 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
             WebRequest request,
             Map<String, String> errorArgs
     ) {
-        ApiResponse<Object> body = ApiResponse.onFailure(
+        CommonResponse<Object> body = CommonResponse.onFailure(
                 errorCommonStatus.getCode(),
                 errorCommonStatus.getMessage(),
                 errorArgs
@@ -165,7 +165,7 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
             HttpHeaders headers,
             WebRequest request
     ) {
-        ApiResponse<Object> body = ApiResponse.onFailure(
+        CommonResponse<Object> body = CommonResponse.onFailure(
                 errorCommonStatus.getCode(),
                 errorCommonStatus.getMessage(),
                 null

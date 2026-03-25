@@ -29,6 +29,16 @@ public class RestaurantController {
     @PostMapping("/search")
     @Operation(summary = "레스토랑 검색", description = "사용자의 알레르기 정보를 기반으로 음식점을 검색합니다")
     @ApiResponse(responseCode = "200", description = "검색 성공")
+    @ApiResponse(responseCode = "429", description = "일일 분석 횟수 초과 (개인 4회 또는 전체 16회)",
+            content = @Content(mediaType = "application/json",
+                    schema = @Schema(example = """
+                            {
+                              "isSuccess": false,
+                              "code": "ANALYSIS4290",
+                              "message": "하루 분석 가능 횟수(4회)를 초과했습니다.",
+                              "success": false
+                            }
+                            """)))
     @ApiResponse(responseCode = "500", description = "AI 서버 에러",
             content = @Content(mediaType = "application/json",
                     schema = @Schema(example = """

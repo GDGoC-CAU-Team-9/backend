@@ -34,6 +34,7 @@ public class RestaurantService {
     private final AvoidItemRepository avoidItemRepository;
     private final TeamMemberRepository teamMemberRepository;
     private final SearchHistoryRepository searchHistoryRepository;
+    private final AnalysisUsageService analysisUsageService;
 
     private final FileService fileService;
 
@@ -67,6 +68,9 @@ public class RestaurantService {
                 .presignedUrl(preSignedUrl.getPresignedUrl())
                 .lang(member.getLanguage())
                 .build();
+
+        analysisUsageService.consumeDailyQuota(member);
+
         try {
             RestaurantSearchResult searchResult = aiClient.requestSearch(aiSearchRequest).getBody();
 

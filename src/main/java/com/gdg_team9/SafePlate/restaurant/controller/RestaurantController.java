@@ -1,10 +1,16 @@
 package com.gdg_team9.SafePlate.restaurant.controller;
 
-import com.gdg_team9.SafePlate.api.ApiResponse;
+import com.gdg_team9.SafePlate.api.CommonResponse;
+import com.gdg_team9.SafePlate.config.AuthErrorResponses;
 import com.gdg_team9.SafePlate.member.domain.Member;
 import com.gdg_team9.SafePlate.restaurant.dto.RestaurantRequest;
 import com.gdg_team9.SafePlate.restaurant.dto.RestaurantResponse;
 import com.gdg_team9.SafePlate.restaurant.service.RestaurantService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -16,16 +22,30 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/restaurant")
 @RequiredArgsConstructor
+@Tag(name = "Restaurant", description = "레스토랑 검색 관련 API")
 public class RestaurantController {
     private final RestaurantService restaurantService;
 
     @PostMapping("/search")
-    public ApiResponse<RestaurantResponse.SearchResult> searchRestaurant(
+    @Operation(summary = "레스토랑 검색", description = "사용자의 알레르기 정보를 기반으로 음식점을 검색합니다")
+    @ApiResponse(responseCode = "200", description = "검색 성공")
+    @ApiResponse(responseCode = "500", description = "AI 서버 에러",
+            content = @Content(mediaType = "application/json",
+                    schema = @Schema(example = """
+                            {
+                              "isSuccess": false,
+                              "code": "AI5000",
+                              "message": "AI 서버에서 문제가 발생했습니다.",
+                              "success": false
+                            }
+                            """)))
+    @AuthErrorResponses
+    public CommonResponse<RestaurantResponse.SearchResult> searchRestaurant(
             @AuthenticationPrincipal Member member,
             @Valid @RequestBody RestaurantRequest.SearchRequest searchRequest
     ) {
         RestaurantResponse.SearchResult searchResponse =
                 restaurantService.searchRestaurant(member, searchRequest);
-        return ApiResponse.onSuccess(searchResponse);
+        return CommonResponse.onSuccess(searchResponse);
     }
 }

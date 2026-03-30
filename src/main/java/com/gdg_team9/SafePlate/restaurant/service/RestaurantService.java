@@ -52,7 +52,7 @@ public class RestaurantService {
 
         List<String> userAllergies = extractUserAllergies(member, clientSearchRequest.getTeamMemberId());
 
-        // 결과 파일을 먼저 만들지 않도록 쿼터를 선검사한다.
+        // 결과 파일을 먼저 만들지 않도록 쿼터를 선차감한다.
         analysisUsageService.consumeDailyQuota(member);
 
         // TODO 이미지 여러 개 보낼 수 있도록 수정

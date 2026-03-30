@@ -65,8 +65,7 @@ public class RestaurantController {
                             {
                               "isSuccess": false,
                               "code": "ANALYSIS4290",
-                              "message": "하루 분석 가능 횟수(4회)를 초과했습니다.",
-                              "success": false
+                              "message": "하루 분석 가능 횟수(4회)를 초과했습니다."
                             }
                             """)))
     @ApiResponse(responseCode = "500", description = "AI 서버 에러",
@@ -75,8 +74,7 @@ public class RestaurantController {
                             {
                               "isSuccess": false,
                               "code": "AI5000",
-                              "message": "AI 서버에서 문제가 발생했습니다.",
-                              "success": false
+                              "message": "AI 서버에서 문제가 발생했습니다."
                             }
                             """)))
     @AuthErrorResponses

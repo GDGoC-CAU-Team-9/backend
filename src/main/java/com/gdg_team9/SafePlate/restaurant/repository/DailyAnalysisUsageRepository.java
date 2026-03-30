@@ -26,4 +26,6 @@ public interface DailyAnalysisUsageRepository extends JpaRepository<DailyAnalysi
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select usage from DailyAnalysisUsage usage where usage.usageDate = :usageDate")
     Optional<DailyAnalysisUsage> findByUsageDateForUpdate(@Param("usageDate") LocalDate usageDate);
+
+    Optional<DailyAnalysisUsage> findByUsageDate(LocalDate usageDate);
 }

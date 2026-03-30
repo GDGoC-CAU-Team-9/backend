@@ -52,6 +52,9 @@ public class RestaurantService {
 
         List<String> userAllergies = extractUserAllergies(member, clientSearchRequest.getTeamMemberId());
 
+        // 결과 파일을 먼저 만들지 않도록 쿼터를 선검사한다.
+        analysisUsageService.consumeDailyQuota(member);
+
         // TODO 이미지 여러 개 보낼 수 있도록 수정
         FileRequest.PresignedUrlRequest presignedUrlRequest =
                 FileRequest.PresignedUrlRequest.builder()
@@ -69,10 +72,13 @@ public class RestaurantService {
                 .lang(member.getLanguage())
                 .build();
 
-        analysisUsageService.consumeDailyQuota(member);
-
         try {
             RestaurantSearchResult searchResult = aiClient.requestSearch(aiSearchRequest).getBody();
+            if (searchResult == null) {
+                log.error("AI server returned empty body. memberId={}", member.getId());
+                handleFileError(preSignedUrl.getFileId(), member);
+                throw new GeneralException(ErrorStatus.AI_SERVER_FAIL);
+            }
 
             FileRequest.PatchStatusRequest statusRequest = FileRequest.PatchStatusRequest.builder()
                     .fileStatus(FileStatus.UPLOADED)

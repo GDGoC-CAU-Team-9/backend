@@ -5,6 +5,7 @@ import com.gdg_team9.SafePlate.exception.GeneralException;
 import com.gdg_team9.SafePlate.member.domain.Member;
 import com.gdg_team9.SafePlate.restaurant.domain.AnalysisUsage;
 import com.gdg_team9.SafePlate.restaurant.domain.DailyAnalysisUsage;
+import com.gdg_team9.SafePlate.restaurant.dto.RestaurantResponse;
 import com.gdg_team9.SafePlate.restaurant.repository.AnalysisUsageRepository;
 import com.gdg_team9.SafePlate.restaurant.repository.DailyAnalysisUsageRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +20,7 @@ import java.time.ZoneId;
 @RequiredArgsConstructor
 public class AnalysisUsageService {
     private static final int MEMBER_DAILY_ANALYSIS_LIMIT = 4;
-    private static final int GLOBAL_DAILY_ANALYSIS_LIMIT = 16;
+    private static final int GLOBAL_DAILY_ANALYSIS_LIMIT = 100;
     private static final ZoneId USAGE_ZONE = ZoneId.of("Asia/Seoul");
 
     private final AnalysisUsageRepository analysisUsageRepository;
@@ -29,6 +30,28 @@ public class AnalysisUsageService {
     public void consumeDailyQuota(Member member) {
         LocalDate usageDate = LocalDate.now(USAGE_ZONE);
         consumeUsage(member, usageDate);
+    }
+
+    @Transactional(readOnly = true)
+    public RestaurantResponse.AnalysisUsageStatus getDailyQuotaStatus(Member member) {
+        LocalDate usageDate = LocalDate.now(USAGE_ZONE);
+
+        int memberUsed = analysisUsageRepository.findByMemberAndUsageDate(member, usageDate)
+                .map(AnalysisUsage::getUsageCount)
+                .orElse(0);
+        int globalUsed = dailyAnalysisUsageRepository.findByUsageDate(usageDate)
+                .map(DailyAnalysisUsage::getUsageCount)
+                .orElse(0);
+
+        return RestaurantResponse.AnalysisUsageStatus.builder()
+                .usageDate(usageDate.toString())
+                .memberDailyLimit(MEMBER_DAILY_ANALYSIS_LIMIT)
+                .memberUsed(memberUsed)
+                .memberRemaining(Math.max(MEMBER_DAILY_ANALYSIS_LIMIT - memberUsed, 0))
+                .globalDailyLimit(GLOBAL_DAILY_ANALYSIS_LIMIT)
+                .globalUsed(globalUsed)
+                .globalRemaining(Math.max(GLOBAL_DAILY_ANALYSIS_LIMIT - globalUsed, 0))
+                .build();
     }
 
     private void consumeUsage(Member member, LocalDate usageDate) {

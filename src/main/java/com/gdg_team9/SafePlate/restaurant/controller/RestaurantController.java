@@ -5,6 +5,7 @@ import com.gdg_team9.SafePlate.config.AuthErrorResponses;
 import com.gdg_team9.SafePlate.member.domain.Member;
 import com.gdg_team9.SafePlate.restaurant.dto.RestaurantRequest;
 import com.gdg_team9.SafePlate.restaurant.dto.RestaurantResponse;
+import com.gdg_team9.SafePlate.restaurant.service.AnalysisUsageService;
 import com.gdg_team9.SafePlate.restaurant.service.RestaurantService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -14,6 +15,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,15 +23,43 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/restaurant")
-@RequiredArgsConstructor
 @Tag(name = "Restaurant", description = "레스토랑 검색 관련 API")
+@RequiredArgsConstructor
 public class RestaurantController {
     private final RestaurantService restaurantService;
+    private final AnalysisUsageService analysisUsageService;
+
+    @GetMapping("/analysis-usage")
+    @Operation(summary = "분석 사용량 조회", description = "오늘(Asia/Seoul) 기준 개인/전체 분석 사용량과 남은 횟수를 조회합니다")
+    @ApiResponse(responseCode = "200", description = "조회 성공",
+            content = @Content(mediaType = "application/json",
+                    schema = @Schema(example = """
+                            {
+                              "isSuccess": true,
+                              "code": "COMMON200",
+                              "message": "성공입니다.",
+                              "result": {
+                                "usage_date": "2026-03-30",
+                                "member_daily_limit": 4,
+                                "member_used": 1,
+                                "member_remaining": 3,
+                                "global_daily_limit": 100,
+                                "global_used": 41,
+                                "global_remaining": 59
+                              }
+                            }
+                            """)))
+    @AuthErrorResponses
+    public CommonResponse<RestaurantResponse.AnalysisUsageStatus> getAnalysisUsage(
+            @AuthenticationPrincipal Member member
+    ) {
+        return CommonResponse.onSuccess(analysisUsageService.getDailyQuotaStatus(member));
+    }
 
     @PostMapping("/search")
     @Operation(summary = "레스토랑 검색", description = "사용자의 알레르기 정보를 기반으로 음식점을 검색합니다")
     @ApiResponse(responseCode = "200", description = "검색 성공")
-    @ApiResponse(responseCode = "429", description = "일일 분석 횟수 초과 (개인 4회 또는 전체 16회)",
+    @ApiResponse(responseCode = "429", description = "일일 분석 횟수 초과 (ANALYSIS4290: 개인 4회, ANALYSIS4291: 전체 100회)",
             content = @Content(mediaType = "application/json",
                     schema = @Schema(example = """
                             {

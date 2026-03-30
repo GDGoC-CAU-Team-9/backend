@@ -21,7 +21,7 @@ public enum ErrorStatus implements BaseErrorCode {
     AI_SERVER_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "AI5000", "AI 서버에서 문제가 발생했습니다."),
     AI_CONNECT_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "AI5001", "AI 서버와의 연결에 실패했습니다."),
     ANALYSIS_DAILY_LIMIT_EXCEEDED(HttpStatus.TOO_MANY_REQUESTS, "ANALYSIS4290", "하루 분석 가능 횟수(4회)를 초과했습니다."),
-    ANALYSIS_GLOBAL_DAILY_LIMIT_EXCEEDED(HttpStatus.TOO_MANY_REQUESTS, "ANALYSIS4291", "오늘 전체 분석 가능 횟수(16회)를 초과했습니다."),
+    ANALYSIS_GLOBAL_DAILY_LIMIT_EXCEEDED(HttpStatus.TOO_MANY_REQUESTS, "ANALYSIS4291", "오늘 전체 분석 가능 횟수(100회)를 초과했습니다."),
 
     FILE_NOT_AVAILABLE(HttpStatus.BAD_REQUEST, "FILE4000", "준비되지 않은 파일입니다."),
     FILE_NOT_OWNED(HttpStatus.FORBIDDEN, "FILE4003", "파일의 소유자가 아닙니다."),

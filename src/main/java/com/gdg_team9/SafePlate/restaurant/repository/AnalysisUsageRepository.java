@@ -33,4 +33,6 @@ public interface AnalysisUsageRepository extends JpaRepository<AnalysisUsage, Lo
             @Param("member") Member member,
             @Param("usageDate") LocalDate usageDate
     );
+
+    Optional<AnalysisUsage> findByMemberAndUsageDate(Member member, LocalDate usageDate);
 }

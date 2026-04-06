@@ -21,13 +21,12 @@ import com.gdg_team9.SafePlate.team.repository.TeamMemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 @Slf4j
 public class RestaurantService {
     private final AiClient aiClient;
@@ -37,34 +36,44 @@ public class RestaurantService {
 
     private final FileService fileService;
 
-    @Transactional
+    private final TransactionTemplate transactionTemplate;
+
     public RestaurantResponse.SearchResult searchRestaurant(
             Member member,
             RestaurantRequest.SearchRequest clientSearchRequest
     ) {
-        // 검색 전에는 업로드한 사람 본인의 이미지가 맞는지 확인 시행
-        List<String> imageUrls = fileService.getFileUrlsByMemberAndIds(member, clientSearchRequest.getIds());
+        AiClientRequest.SearchPreparedData result = transactionTemplate.execute(status -> {
+            // 검색 전에는 업로드한 사람 본인의 이미지가 맞는지 확인 시행
+            List<String> imageUrls = fileService.getFileUrlsByMemberAndIds(member, clientSearchRequest.getIds());
 
-        if (clientSearchRequest.getIds().size() != imageUrls.size()) {
-            throw new GeneralException(ErrorStatus.FILE_NOT_OWNED);
-        }
+            if (clientSearchRequest.getIds().size() != imageUrls.size()) {
+                throw new GeneralException(ErrorStatus.FILE_NOT_OWNED);
+            }
 
-        List<String> userAllergies = extractUserAllergies(member, clientSearchRequest.getTeamMemberId());
+            List<String> userAllergies = extractUserAllergies(member, clientSearchRequest.getTeamMemberId());
 
-        // TODO 이미지 여러 개 보낼 수 있도록 수정
-        FileRequest.PresignedUrlRequest presignedUrlRequest =
-                FileRequest.PresignedUrlRequest.builder()
-                        .path("menu_board_response")
-                        .fileType("png")
-                        .build();
-        FileResponse.PresignedUrlResponse preSignedUrl =
-                fileService.getPreSignedUrl(member, presignedUrlRequest);
+            // TODO 이미지 여러 개 보낼 수 있도록 수정
+            FileRequest.PresignedUrlRequest presignedUrlRequest =
+                    FileRequest.PresignedUrlRequest.builder()
+                            .path("menu_board_response")
+                            .fileType("png")
+                            .build();
+            FileResponse.PresignedUrlResponse preSignedUrl =
+                    fileService.getPreSignedUrl(member, presignedUrlRequest);
+
+            // 처리한 3가지 Data를 lambda 밖으로 꺼내기
+            return AiClientRequest.SearchPreparedData.builder()
+                    .imageUrls(imageUrls)
+                    .userAllergies(userAllergies)
+                    .preSignedUrl(preSignedUrl)
+                    .build();
+        });
 
         AiClientRequest.SearchRequest aiSearchRequest = AiClientRequest.SearchRequest.builder()
-                .imageUrl(imageUrls.get(0))
+                .imageUrl(result.getImageUrls().get(0))
                 .menuLang(clientSearchRequest.getMenuLang())
-                .avoid(userAllergies)
-                .presignedUrl(preSignedUrl.getPresignedUrl())
+                .avoid(result.getUserAllergies())
+                .presignedUrl(result.getPreSignedUrl().getPresignedUrl())
                 .lang(member.getLanguage())
                 .build();
         try {
@@ -73,27 +82,29 @@ public class RestaurantService {
             FileRequest.PatchStatusRequest statusRequest = FileRequest.PatchStatusRequest.builder()
                     .fileStatus(FileStatus.UPLOADED)
                     .build();
-            String resultImageUrl = fileService.patchFileStatus(member, preSignedUrl.getFileId(), statusRequest);
 
             SearchHistory searchHistory = SearchHistory.builder()
                     .member(member)
                     .imageIds(clientSearchRequest.getIds())
-                    .resultImageIds(List.of(preSignedUrl.getFileId()))
+                    .resultImageIds(List.of(result.getPreSignedUrl().getFileId()))
                     .searchResult(searchResult)
                     .build();
 
-            searchHistoryRepository.save(searchHistory);
+            String resultImageUrl = transactionTemplate.execute(status -> {
+                searchHistoryRepository.save(searchHistory);
+                return fileService.patchFileStatus(member, result.getPreSignedUrl().getFileId(), statusRequest);
+            });
 
             // RestaurantSearchResult -> RestaurantResponse.SearchResult 변환
             return toSearchResultResponse(searchResult, resultImageUrl);
 
         } catch (feign.RetryableException e) {
             log.error(e.getMessage(), e);
-            handleFileError(preSignedUrl.getFileId(), member);
+            handleFileError(result.getPreSignedUrl().getFileId(), member);
             throw new GeneralException(ErrorStatus.AI_CONNECT_FAIL);
         } catch (feign.FeignException e) {
             log.error(e.getMessage(), e);
-            handleFileError(preSignedUrl.getFileId(), member);
+            handleFileError(result.getPreSignedUrl().getFileId(), member);
             throw new GeneralException(ErrorStatus.AI_SERVER_FAIL);
         }
     }

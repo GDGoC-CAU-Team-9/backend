@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class AvoidItemService {
 
@@ -49,6 +48,7 @@ public class AvoidItemService {
                 .build();
     }
 
+    @Transactional(readOnly = true)
     public AvoidItemResponse.MyAvoidResponse getMyAvoid(Member member) {
         List<String> avoidItem = avoidItemRepository.findById(member.getId())
                 .map(AvoidItem::getAvoidItems)

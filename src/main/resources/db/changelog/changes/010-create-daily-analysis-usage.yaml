@@ -1,0 +1,34 @@
+databaseChangeLog:
+  - changeSet:
+      id: 010-create-daily-analysis-usage
+      author: gdg_team9
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: HALT
+        - not:
+            tableExists:
+              tableName: daily_analysis_usage
+      changes:
+        - createTable:
+            tableName: daily_analysis_usage
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: usage_date
+                  type: date
+                  constraints:
+                    nullable: false
+              - column:
+                  name: usage_count
+                  type: int
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            tableName: daily_analysis_usage
+            columnNames: usage_date
+            constraintName: uk_daily_analysis_usage_date

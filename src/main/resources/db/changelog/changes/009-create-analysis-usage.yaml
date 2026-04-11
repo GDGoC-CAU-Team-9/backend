@@ -1,0 +1,45 @@
+databaseChangeLog:
+  - changeSet:
+      id: 009-create-analysis-usage
+      author: gdg_team9
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: HALT
+        - not:
+            tableExists:
+              tableName: analysis_usage
+      changes:
+        - createTable:
+            tableName: analysis_usage
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: member_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: usage_date
+                  type: date
+                  constraints:
+                    nullable: false
+              - column:
+                  name: usage_count
+                  type: int
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseColumnNames: member_id
+            baseTableName: analysis_usage
+            constraintName: fk_analysis_usage_member
+            referencedColumnNames: id
+            referencedTableName: member
+        - addUniqueConstraint:
+            tableName: analysis_usage
+            columnNames: member_id, usage_date
+            constraintName: uk_analysis_usage_member_date

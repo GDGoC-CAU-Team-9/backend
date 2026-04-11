@@ -94,4 +94,40 @@ public class RestaurantResponse {
             private int total;
         }
     }
+
+    @Getter
+    @Setter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Schema(description = "분석 사용량/남은 횟수")
+    public static class AnalysisUsageStatus {
+        @Schema(description = "기준 날짜(Asia/Seoul)", example = "2026-03-30")
+        @JsonProperty("usage_date")
+        private String usageDate;
+
+        @Schema(description = "개인 일일 제한", example = "4")
+        @JsonProperty("member_daily_limit")
+        private int memberDailyLimit;
+
+        @Schema(description = "개인 오늘 사용 횟수", example = "2")
+        @JsonProperty("member_used")
+        private int memberUsed;
+
+        @Schema(description = "개인 오늘 남은 횟수", example = "2")
+        @JsonProperty("member_remaining")
+        private int memberRemaining;
+
+        @Schema(description = "전체 일일 제한", example = "100")
+        @JsonProperty("global_daily_limit")
+        private int globalDailyLimit;
+
+        @Schema(description = "전체 오늘 사용 횟수", example = "61")
+        @JsonProperty("global_used")
+        private int globalUsed;
+
+        @Schema(description = "전체 오늘 남은 횟수", example = "39")
+        @JsonProperty("global_remaining")
+        private int globalRemaining;
+    }
 }
